@@ -35,8 +35,8 @@ class CountingBot(commands.Bot):
         self.next_number = self.current_count + 1
 
     def load_count(self):
-        if os.path.exists("ICB_Memory.json"):
-            with open("ICB_Memory.json", "r") as f:
+        if os.path.exists("icb_memory.json"):
+            with open("icb_memory.json", "r") as f:
                 try:
                     data = json.load(f)
                     self.current_count = data.get("current_count", 0)
@@ -63,7 +63,7 @@ class CountingBot(commands.Bot):
             "current_streak": self.current_streak,
             "record_streak": self.record_streak
             }
-        with open("ICB_Memory.json", "w") as f:
+        with open("icb_memory.json", "w") as f:
             json.dump(data, f)
 
     def record_save(self, message_author):
