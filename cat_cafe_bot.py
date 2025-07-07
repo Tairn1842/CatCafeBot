@@ -15,7 +15,7 @@ bottoken = os.getenv("token")
 
 
 intents = discord.Intents.all()
-bot_embed_colour = discord.Colour.from_str("#0096ff")
+bot_embed_colour = discord.Colour.from_str("#3f00ff")
 
 
 class CountingBot(commands.Bot):
@@ -151,19 +151,32 @@ class CountingBot_MessageHandler:
         return all(digits[i] - 1 == digits[i + 1] for i in range(len(digits) - 1))
 
 
+# Nitro Roles Menu
+
+
 role_list = {'Red' : 1200885809943941291, 'Burgundy' : 1200885966311805168, 'Vivid Orange' : 1200886299914149898, 'Royal Orange' : 1200886690638725230, 'Golden Yellow' : 1200886767700684880, 'Apple Green' : 1200887512671997953, 'Avocado' : 1200886400204152923, 'Iceberg' : 1200887825780969614, 'Cosmic Cobalt' : 1200887996673699911, 'Vivid Orchid' : 1200888167444775053, 'Deep Pink' : 1200888375612280913, 'Light Pink' : 1257019397197795530, 'Royal Purple' : 1200888542931468368, 'Void Kitty' : 1200888968804302920, 'Turquoise' : 1252837659433238550, 'Milk' : 1200889419746525264, 'Holographic' : 1387402028329734224}
-class nitro_role_buttons(discord.ui.Button):
-    def  __init__(self, custom_id = str, label = str):
-        super().__init__(style = discord.ButtonStyle.secondary, label = label, custom_id = custom_id)
+
+class nitro_role_list(discord.ui.Select):
+    def  __init__(self):
+        options= [discord.SelectOption(label="🚫 No Color", value="none")]+[discord.SelectOption(label=label, value=label) for label in role_list]
+        super().__init__(placeholder="Choose your role...", min_values=1, max_values=1, options=options, custom_id="role_select")
     
     async def callback(self, interaction: discord.Interaction):
         member = interaction.user
         guild  = interaction.guild
-        target = guild.get_role(role_list[self.custom_id])
-        if not target:
-            return await interaction.response("❌ Role not found.")
+        selected_key = self.values[0]
         
-        to_remove = [guild.get_role(rid) for cid, rid in role_list.items() if cid != self.custom_id and guild.get_role(rid) in member.roles]
+        if selected_key == "none":
+            to_remove = [guild.get_role(rid) for rid in role_list.values() if guild.get_role(rid) in member.roles]
+            if to_remove:
+                await member.remove_roles(*to_remove, reason="Cleared color roles")
+            await interaction.response.send_message("✅ Color roles cleared.", ephemeral=True)
+            return
+        
+        target = guild.get_role(role_list[selected_key])
+        if not target:
+            return await interaction.response.send_message("❌ Role not found.")
+        to_remove = [guild.get_role(rid) for cid, rid in role_list.items() if cid != selected_key and guild.get_role(rid) in member.roles]
         
         try:
             if to_remove:
@@ -180,9 +193,7 @@ class nitro_role_buttons(discord.ui.Button):
 class nitro_role_picker(discord.ui.View):
     def __init__(self):
         super().__init__(timeout = None)
-        for cid, rid in role_list.items():
-            label = cid.replace("_", " ").title()
-            self.add_item(nitro_role_buttons(custom_id=cid, label=label))          
+        self.add_item(nitro_role_list())          
     
         
 # Event hander within counts.        
