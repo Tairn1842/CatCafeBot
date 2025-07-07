@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import json
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv  
 import time
 
 load_dotenv()
@@ -26,7 +26,7 @@ class CountingBot(commands.Bot):
         self.counting_channel = None
         self.latest_message = None
         self.counting_record = 0
-        self.record_holder = 0
+        self.record_holder = None
         self.current_streak = 0
         self.record_streak = 0
 
@@ -44,7 +44,7 @@ class CountingBot(commands.Bot):
                     self.counting_channel = data.get("counting_channel", None)
                     self.latest_message = data.get("latest_message", None)
                     self.counting_record = data.get("counting_record", 0)
-                    self.record_holder = data.get("record_holder", 0)
+                    self.record_holder = data.get("record_holder", None)
                     self.current_streak = data.get("current_streak",0)
                     self.record_streak = data.get("record_streak",0)
                 except json.JSONDecodeError:
@@ -156,7 +156,7 @@ class CountingBot_MessageHandler:
 role_list = {'Red' : 1200885809943941291, 'Burgundy' : 1200885966311805168, 'Vivid Orange' : 1200886299914149898, 'Royal Orange' : 1200886690638725230, 'Golden Yellow' : 1200886767700684880, 'Apple Green' : 1200887512671997953, 'Avocado' : 1200886400204152923, 'Iceberg' : 1200887825780969614, 'Cosmic Cobalt' : 1200887996673699911, 'Vivid Orchid' : 1200888167444775053, 'Deep Pink' : 1200888375612280913, 'Light Pink' : 1257019397197795530, 'Royal Purple' : 1200888542931468368, 'Void Kitty' : 1200888968804302920, 'Turquoise' : 1252837659433238550, 'Milk' : 1200889419746525264, 'Holographic' : 1387402028329734224}
 
 class nitro_role_list(discord.ui.Select):
-    def  __init__(self):
+    def __init__(self):
         options= [discord.SelectOption(label="🚫 No Color", value="none")]+[discord.SelectOption(label=label, value=label) for label in role_list]
         super().__init__(placeholder="Choose your role...", min_values=1, max_values=1, options=options, custom_id="role_select")
     
