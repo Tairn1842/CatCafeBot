@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import json
 import os
-from dotenv import load_dotenv  
+from dotenv import load_dotenv
 import time
 
 load_dotenv()
@@ -14,7 +14,7 @@ bottoken = os.getenv("token")
 
 
 intents = discord.Intents.all()
-bot_embed_colour = discord.Colour.from_str("#3f00ff")
+bot_embed_colour = discord.Colour.from_str("#1a1db0")
 
 
 class CountingBot(commands.Bot):
