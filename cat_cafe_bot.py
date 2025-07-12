@@ -14,7 +14,7 @@ bottoken = os.getenv("token")
 
 
 intents = discord.Intents.all()
-bot_embed_colour = discord.Colour.from_str("#1a1db0")
+bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 
 class CountingBot(commands.Bot):
