@@ -107,7 +107,7 @@ class CountingBot_MessageHandler:
             return
         
         if counted_number != self.bot.current_count + 1:
-            await message.channel.send("Did you forget to learn how to count? Or do you not know what 'consequtive' means?")
+            await message.channel.send("Did you not learn to count? Or do you not know what 'consequtive' means?")
             await self.reset_count_handler(message)
             return
         
