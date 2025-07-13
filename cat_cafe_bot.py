@@ -144,10 +144,17 @@ class CountingBot_MessageHandler:
 
         if self.is_perfect_sequence(counted_number):
             await message.channel.send("A perfect sequence, would you look at that!")
+        
+        if self.is_plaindrome(counted_number):
+            await message.channel.send("A palindrome! Neat!")
 
     def is_perfect_sequence(self, counted_number):
         digits = list(map(int, str(counted_number)[::-1]))
         return all(digits[i] - 1 == digits[i + 1] for i in range(len(digits) - 1))
+    
+    def is_plaindrome(self, counted_number):
+        str_num = str(counted_number)
+        return str_num == str_num[::-1]
 
 
 # Nitro Roles Menu
