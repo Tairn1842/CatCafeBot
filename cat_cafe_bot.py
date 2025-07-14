@@ -85,16 +85,16 @@ class CountingBot_MessageHandler:
 
     async def message_handler(self,message):
         if message.author.bot:
-            return        
+            return
         if message.content.startswith(self.bot.command_prefix):
             await self.bot.process_commands(message)
-            return        
+            return
         if "hello there" in message.content.lower():
             await message.reply("https://tenor.com/view/hello-there-general-kenobi-star-wars-grevious-gif-17774326")
         if self.bot.counting_channel is None:
-            return        
+            return
         if message.channel.id != self.bot.counting_channel:
-            return        
+            return
         if not message.content.isdigit():
             return
         
