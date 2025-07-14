@@ -128,6 +128,20 @@ class CountingBot_MessageHandler:
         self.bot.latest_message = message.id
         self.bot.record_save(message.author.id)
         
+        def special_number_checker(counted_number):
+            checker_response = []
+            # Sequence Checker
+            num_digits = list(map(int, str(counted_number)[::-1]))
+            if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
+                checker_response.append("Hey, that's a perfect sequence!")
+            # Palindrome Checker
+            if str(counted_number) == str(counted_number)[::-1]:
+                checker_response.append("Hey, that's a palindrome!")
+            # SixtyNice Checker
+            if "69" in str(counted_number):
+                checker_response.append("Hehehehehehehe 69")
+            return checker_response
+        
         if counted_number % 100 == 0:
             self.bot.last_reset = counted_number
             await message.add_reaction(self.hundred_reaction)
@@ -143,19 +157,6 @@ class CountingBot_MessageHandler:
         
         for i in special_number_checker(counted_number):
             await message.channel.send(i)
-        def special_number_checker(counted_number):
-            checker_response = []
-            # Sequence Checker
-            num_digits = list(map(int, str(counted_number)[::-1]))
-            if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
-                checker_response.append("Hey, that's a perfect sequence!")
-            # Palindrome Checker
-            if str(counted_number) == str(counted_number)[::-1]:
-                checker_response.append("Hey, that's a palindrome!")
-            # SixtyNice Checker
-            if "69" in str(counted_number):
-                checker_response.append("Hehehehehehehe 69")
-            return checker_response
 
 
 # Nitro Roles Menu
