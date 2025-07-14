@@ -324,10 +324,7 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
         raise error
 
 
-
 # Bot runner.
 
 
 bot.run(bottoken)
-
-# end
