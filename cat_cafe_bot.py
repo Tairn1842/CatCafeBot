@@ -6,18 +6,19 @@ import os
 from dotenv import load_dotenv
 import time
 
+
 load_dotenv()
 bottoken = os.getenv("token")
 
 
 # Bot defintion.
 
-
 intents = discord.Intents.all()
 bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 
 class CountingBot(commands.Bot):
+
     def __init__(self):
         super().__init__(command_prefix="$", intents=intents, help_command=None)
         self.current_count = 0
@@ -73,7 +74,6 @@ class CountingBot(commands.Bot):
 
 # Interaction Handler.
 
-
 class CountingBot_MessageHandler:
     cross_reaction = "<a:cross:1329494914945515593>"
     tick_reaction = "<a:tick:1329494885279203450>"
@@ -82,20 +82,19 @@ class CountingBot_MessageHandler:
     
     def __init__(self, bot):
         self.bot = bot
+
     async def message_handler(self,message):
         if message.author.bot:
-            return
-        
+            return        
         if message.content.startswith(self.bot.command_prefix):
             await self.bot.process_commands(message)
-            return
-        
+            return        
+        if "hello there" in message.content.lower():
+            await message.reply("https://tenor.com/view/hello-there-general-kenobi-star-wars-grevious-gif-17774326")
         if self.bot.counting_channel is None:
-            return
-        
+            return        
         if message.channel.id != self.bot.counting_channel:
-            return
-        
+            return        
         if not message.content.isdigit():
             return
         
@@ -159,10 +158,10 @@ class CountingBot_MessageHandler:
 
 # Nitro Roles Menu
 
-
 role_list = {'Red' : 1200885809943941291, 'Burgundy' : 1200885966311805168, 'Vivid Orange' : 1200886299914149898, 'Royal Orange' : 1200886690638725230, 'Golden Yellow' : 1200886767700684880, 'Apple Green' : 1200887512671997953, 'Avocado' : 1200886400204152923, 'Iceberg' : 1200887825780969614, 'Cosmic Cobalt' : 1200887996673699911, 'Vivid Orchid' : 1200888167444775053, 'Deep Pink' : 1200888375612280913, 'Light Pink' : 1257019397197795530, 'Royal Purple' : 1200888542931468368, 'Void Kitty' : 1200888968804302920, 'Turquoise' : 1252837659433238550, 'Milk' : 1200889419746525264, 'Holographic' : 1387402028329734224}
 
 class nitro_role_list(discord.ui.Select):
+
     def __init__(self):
         options= [discord.SelectOption(label="🚫 No Color", value="none")]+[discord.SelectOption(label=label, value=label) for label in role_list]
         super().__init__(placeholder="Choose your role...", min_values=1, max_values=1, options=options, custom_id="role_select")
@@ -202,12 +201,12 @@ class nitro_role_picker(discord.ui.View):
         self.add_item(nitro_role_list())          
     
         
-# Event hander within counts.        
-
+# Event hander within counts.
     
 bot = CountingBot()
 run_message_handler = CountingBot_MessageHandler(bot)
 tree = bot.tree
+
 @bot.event
 async def on_ready():
     bot.add_view(nitro_role_picker())
@@ -238,37 +237,31 @@ async def on_message_delete(message):
 
 # Slash commands.
 
-
 @bot.tree.command(name = "status", description="A full run-down of the bot's status.")
 async def bot_status(interaction: discord.Interaction):
     statusembed = discord.Embed(title = "All bot stats:", description = f"Channel: <#{bot.counting_channel}>\nCurrent Count: {bot.current_count}\nNext: {bot.next_number}\nLast user: <@{bot.last_user_id}>\nReset Point: {bot.last_reset}\nRecord: {bot.counting_record}\nRecord Holder: <@{bot.record_holder}>\nCurrent Streak: {bot.current_streak}\nRecord Streak: {bot.record_streak}", colour=bot_embed_colour)
     await interaction.response.send_message(embed=statusembed)
-
 
 @bot.tree.command(name="record", description="Displays this server's counting record.")
 async def record(interaction: discord.Interaction):
     recordmebed = discord.Embed(title="Counting Record:", description=f"This server's counting record is __**{bot.counting_record}**__. It was achieved by <@{bot.record_holder}>.", colour=bot_embed_colour)
     await interaction.response.send_message(embed=recordmebed)
 
-
 @bot.tree.command(name="next", description="Tells you what the next number is. Because apparently reading is hard.")
 async def nextnumber(interaction: discord.Interaction):
     nextembed = discord.Embed(title="Next Number:", description=f"The next number is __**{bot.next_number}**__. The last person to count was <@{bot.last_user_id}>.", colour=bot_embed_colour)
     await interaction.response.send_message(embed=nextembed)
-
 
 @bot.tree.command(name= "streak", description= "Displays the current and record counting streaks.")
 async def streakinfo(interaction: discord.Interaction):
     streakembed = discord.Embed(title="Streak Information:", description=f"The current streak is __**{bot.current_streak}**__, and the streak record is __**{bot.record_streak}**__.", colour=bot_embed_colour)
     await interaction.response.send_message(embed=streakembed)
 
-
 @bot.tree.command(name="ping", description= "How quickly is the bot responding?")
 async def botping(interaction: discord.Interaction):
     latency = bot.latency * 1000
     pingembed = discord.Embed(title="Pong", description=f"-# The bot took {latency:.2f} ms to respond to this command.", colour=bot_embed_colour)
     await interaction.response.send_message(embed=pingembed)
-
 
 @bot.tree.command(name="help", description="A list of the bot's commands.")
 async def helpmessage(interaction: discord.Interaction):
@@ -284,16 +277,13 @@ async def helpmessage(interaction: discord.Interaction):
 @commands.is_owner()
 async def sync(ctx: commands.Context):
     start_time = time.time()
-    
     try:
         synced = await bot.tree.sync()
         end_time = time.time()
         duration = end_time - start_time
         await ctx.send(f"Synced {len(synced)} commands globally in {duration:.2f} seconds.")
-        
     except discord.HTTPException as e:
         await ctx.send(f"Error while syncing: {str(e)}")
-
 
 @bot.command()
 @commands.is_owner()
@@ -301,8 +291,7 @@ async def nitrosetup(ctx: commands.Context):
     nitro_role_list = [ctx.guild.get_role(rid) for rid in list(role_list.values())]
     mentions = "\n".join(role.mention for role in nitro_role_list)
     nitro_embed = discord.Embed(title = 'Thank you for boosting the server! As a reward for your contribution, you can pick a colour role from those listed below.', description = mentions, colour=bot_embed_colour)
-    await ctx.send(embed = nitro_embed, view = nitro_role_picker(), allowed_mentions = discord.AllowedMentions(roles = True))
-    
+    await ctx.send(embed = nitro_embed, view = nitro_role_picker(), allowed_mentions = discord.AllowedMentions(roles = True))    
 
 @bot.command()
 @commands.is_owner()
@@ -316,6 +305,8 @@ async def setchannel(ctx: commands.Context, channel: discord.TextChannel = None)
     await ctx.send(f"Counting channel set to {target_channel.mention}. Let the counting begin!")
 
 
+# Error handler for owner-only commands.
+
 @bot.event
 async def on_command_error(ctx: commands.Context, error: commands.CommandError):
     if isinstance(error, commands.NotOwner):
@@ -325,6 +316,5 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
 
 
 # Bot runner.
-
 
 bot.run(bottoken)
