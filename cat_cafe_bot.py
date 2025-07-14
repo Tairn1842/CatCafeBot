@@ -141,20 +141,20 @@ class CountingBot_MessageHandler:
             await message.add_reaction(self.tick_reaction)
         
         self.bot.save_count()
-
-        if self.is_perfect_sequence(counted_number):
-            await message.channel.send("A perfect sequence, would you look at that!")
         
-        if self.is_plaindrome(counted_number):
-            await message.channel.send("A palindrome! Neat!")
-
-    def is_perfect_sequence(self, counted_number):
-        digits = list(map(int, str(counted_number)[::-1]))
-        return all(digits[i] - 1 == digits[i + 1] for i in range(len(digits) - 1))
-    
-    def is_plaindrome(self, counted_number):
-        str_num = str(counted_number)
-        return str_num == str_num[::-1]
+        special_number_checker(counted_number)
+        
+        async def special_number_checker(counted_number):
+            # Sequence Checker
+            num_digits = list(map(int, str(counted_number)[::-1]))
+            if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
+                await message.channel.send("Hey, that's a perfect sequence!")
+            # Palindrome Checker
+            if str(counted_number) == str(counted_number)[::-1]:
+                await message.channel.send("Hey, that's a palindrome!")
+            # SixtyNice Checker
+            if "69" in str(counted_number):
+                await message.channel.send("Hehehehehehehe 69")
 
 
 # Nitro Roles Menu
