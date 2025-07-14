@@ -70,6 +70,9 @@ class CountingBot(commands.Bot):
         if self.current_count > self.counting_record:
             self.counting_record = self.current_count
             self.record_holder = message_author
+            self.current_streak += 1
+            if self.current_streak > self.record_streak:
+                self.record_streak = self.current_streak
 
 
 # Interaction Handler.
@@ -127,6 +130,7 @@ class CountingBot_MessageHandler:
         self.bot.last_user_id = message.author.id
         self.bot.latest_message = message.id
         self.bot.record_save(message.author.id)
+        self.bot.save_count()
         
         def special_number_checker(counted_number):
             checker_response = []
@@ -146,14 +150,9 @@ class CountingBot_MessageHandler:
             self.bot.last_reset = counted_number
             await message.add_reaction(self.hundred_reaction)
         elif counted_number == self.bot.counting_record:
-            self.bot.current_streak += 1
-            if self.bot.current_streak > self.bot.record_streak:
-                self.bot.record_streak = self.bot.current_streak
             await message.add_reaction(self.bluetick_reaction)
         else:
             await message.add_reaction(self.tick_reaction)
-        
-        self.bot.save_count()
         
         for i in special_number_checker(counted_number):
             await message.channel.send(i)
