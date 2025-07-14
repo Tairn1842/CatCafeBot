@@ -141,19 +141,21 @@ class CountingBot_MessageHandler:
         
         self.bot.save_count()
         
-        special_number_checker(counted_number)
-        
-        async def special_number_checker(counted_number):
+        for i in special_number_checker(counted_number):
+            await message.channel.send(i)
+        def special_number_checker(counted_number):
+            checker_response = []
             # Sequence Checker
             num_digits = list(map(int, str(counted_number)[::-1]))
             if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
-                await message.channel.send("Hey, that's a perfect sequence!")
+                checker_response.append("Hey, that's a perfect sequence!")
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
-                await message.channel.send("Hey, that's a palindrome!")
+                checker_response.append("Hey, that's a palindrome!")
             # SixtyNice Checker
             if "69" in str(counted_number):
-                await message.channel.send("Hehehehehehehe 69")
+                checker_response.append("Hehehehehehehe 69")
+            return checker_response
 
 
 # Nitro Roles Menu
