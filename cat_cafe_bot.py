@@ -23,7 +23,6 @@ class CountingBot(commands.Bot):
         super().__init__(command_prefix="$", intents=intents, help_command=None)
         self.current_count = 0
         self.last_user_id = None
-        self.last_reset = 0
         self.counting_channel = None
         self.latest_message = None
         self.counting_record = 0
@@ -41,7 +40,6 @@ class CountingBot(commands.Bot):
                     data = json.load(f)
                     self.current_count = data.get("current_count", 0)
                     self.last_user_id = data.get("last_user_id", None)
-                    self.last_reset = data.get("last_reset", 0)
                     self.counting_channel = data.get("counting_channel", None)
                     self.latest_message = data.get("latest_message", None)
                     self.counting_record = data.get("counting_record", 0)
@@ -55,7 +53,6 @@ class CountingBot(commands.Bot):
         data = {
             "current_count": self.current_count,
             "last_user_id": self.last_user_id,
-            "last_reset": self.last_reset,
             "counting_channel": self.counting_channel,
             "latest_message": self.latest_message,
             "counting_record": self.counting_record,
@@ -116,7 +113,7 @@ class CountingBot_MessageHandler:
         await self.correct_count_handler(message,counted_number)
         
     async def reset_count_handler(self,message):
-        self.bot.current_count = self.bot.last_reset
+        self.bot.current_count = (self.bot.current_count // 100) * 100
         self.bot.next_number = self.bot.current_count + 1
         self.bot.current_streak = 0
         self.bot.last_user_id = None
@@ -147,7 +144,6 @@ class CountingBot_MessageHandler:
             return checker_response
         
         if counted_number % 100 == 0:
-            self.bot.last_reset = counted_number
             await message.add_reaction(self.hundred_reaction)
         elif counted_number == self.bot.counting_record:
             await message.add_reaction(self.bluetick_reaction)
@@ -241,7 +237,7 @@ async def on_message_delete(message):
 
 @bot.tree.command(name = "status", description="A full run-down of the bot's status.")
 async def bot_status(interaction: discord.Interaction):
-    statusembed = discord.Embed(title = "All bot stats:", description = f"Channel: <#{bot.counting_channel}>\nCurrent Count: {bot.current_count}\nNext: {bot.next_number}\nLast user: <@{bot.last_user_id}>\nReset Point: {bot.last_reset}\nRecord: {bot.counting_record}\nRecord Holder: <@{bot.record_holder}>\nCurrent Streak: {bot.current_streak}\nRecord Streak: {bot.record_streak}", colour=bot_embed_colour)
+    statusembed = discord.Embed(title = "All bot stats:", description = f"Channel: <#{bot.counting_channel}>\nCurrent Count: {bot.current_count}\nNext: {bot.next_number}\nLast user: <@{bot.last_user_id}>\nReset Point: {(bot.current_count // 100) * 100}\nRecord: {bot.counting_record}\nRecord Holder: <@{bot.record_holder}>\nCurrent Streak: {bot.current_streak}\nRecord Streak: {bot.record_streak}", colour=bot_embed_colour)
     await interaction.response.send_message(embed=statusembed)
 
 @bot.tree.command(name="record", description="Displays this server's counting record.")
