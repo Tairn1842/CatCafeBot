@@ -133,7 +133,7 @@ class CountingBot_MessageHandler:
             checker_response = []
             # Sequence Checker
             num_digits = list(map(int, str(counted_number)[::-1]))
-            if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
+            if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)) or all(num_digits[i] + 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
                 checker_response.append("Hey, that's a perfect sequence!")
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
