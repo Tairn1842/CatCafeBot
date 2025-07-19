@@ -141,6 +141,12 @@ class CountingBot_MessageHandler:
             # SixtyNice Checker
             if "69" in str(counted_number):
                 checker_response.append("Hehehehehehehe 69")
+            # Order 66 Checker
+            if "66" in str(counted_number):
+                checker_response.append("Execute Order 66!")
+            # Devil's Number Checker
+            if counted_number == 666:
+                checker_response.append("Hail Satan!")
             return checker_response
         
         if counted_number % 100 == 0:
