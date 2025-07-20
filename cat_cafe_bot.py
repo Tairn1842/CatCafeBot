@@ -134,19 +134,19 @@ class CountingBot_MessageHandler:
             # Sequence Checker
             num_digits = list(map(int, str(counted_number)[::-1]))
             if all(num_digits[i] - 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)) or all(num_digits[i] + 1 == num_digits[i + 1] for i in range(len(num_digits) - 1)):
-                checker_response.append("Hey, that's a perfect sequence!")
+                checker_response.append("Hey, that's a perfect sequence[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)")
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
-                checker_response.append("Hey, that's a palindrome!")
+                checker_response.append("Hey, that's a palindrome[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)")
             # SixtyNice Checker
             if "69" in str(counted_number):
-                checker_response.append("Hehehehehehehe 69")
+                checker_response.append("https://tenor.com/view/noice-nice-click-gif-8843762")
             # Order 66 Checker
             if "66" in str(counted_number):
-                checker_response.append("Execute Order 66!")
+                checker_response.append("https://tenor.com/view/execute-order66-order66-66-palpatine-star-wars-gif-20468321")
             # Devil's Number Checker
             if counted_number == 666:
-                checker_response.append("Hail Satan!")
+                checker_response.append("https://tenor.com/view/hail-satan-gif-25445039")
             return checker_response
         
         if counted_number % 100 == 0:
