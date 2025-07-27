@@ -119,7 +119,7 @@ class CountingBot_MessageHandler:
     self.bot.last_user_id = None
     self.bot.save_count()
     await message.add_reaction(self.cross_reaction)
-    await message.channel.send(f"Next number is: {self.bot.next_number}")
+    await message.channel.send(f"The next number is {self.bot.next_number}")
 
   async def correct_count_handler(self,message,counted_number):
     self.bot.current_count = counted_number
@@ -248,17 +248,17 @@ async def bot_status(interaction: discord.Interaction):
 
 @bot.tree.command(name="record", description="Displays this server's counting record.")
 async def record(interaction: discord.Interaction):
-  recordmebed = discord.Embed(title="Counting Record:", description=f"This server's counting record is __**{bot.counting_record}**__. It was achieved by <@{bot.record_holder}>.", colour=bot_embed_colour)
+  recordmebed = discord.Embed(title="Counting Record:", description=f"This server's counting record is __**{bot.counting_record}**__.\nIt was achieved by <@{bot.record_holder}>.", colour=bot_embed_colour)
   await interaction.response.send_message(embed=recordmebed)
 
 @bot.tree.command(name="next", description="Tells you what the next number is. Because apparently reading is hard.")
 async def nextnumber(interaction: discord.Interaction):
-  nextembed = discord.Embed(title="Next Number:", description=f"The next number is __**{bot.next_number}**__. The last person to count was <@{bot.last_user_id}>.", colour=bot_embed_colour)
+  nextembed = discord.Embed(title="Next Number:", description=f"The next number is __**{bot.next_number}**__.\nThe last person to count was <@{bot.last_user_id}>.", colour=bot_embed_colour)
   await interaction.response.send_message(embed=nextembed)
 
 @bot.tree.command(name= "streak", description= "Displays the current and record counting streaks.")
 async def streakinfo(interaction: discord.Interaction):
-  streakembed = discord.Embed(title="Streak Information:", description=f"The current streak is __**{bot.current_streak}**__, and the streak record is __**{bot.record_streak}**__.", colour=bot_embed_colour)
+  streakembed = discord.Embed(title="Streak Information:", description=f"The current streak is __**{bot.current_streak}**__.\nThe streak record is __**{bot.record_streak}**__.", colour=bot_embed_colour)
   await interaction.response.send_message(embed=streakembed)
 
 @bot.tree.command(name="ping", description= "How quickly is the bot responding?")
@@ -278,7 +278,7 @@ async def helpmessage(interaction: discord.Interaction):
     help_command_list.add_field(name=f"/{cmd.name}", value=cmd.description, inline=False)
   help_command_list.set_footer(text="Page 2 of 2")
 
-  counting_game_info = discord.Embed(title="The Counging Game:", description="This is the bot's primary purpose, to run the counting game. The rules are pretty simple.\n - Count in consecutive numbers, the goal is to get as high as possible.\n - You cannot count twice in a row.\n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. If this happens, you'll be able to start the count again at the designated number.\n -  Some numbers are special and will merti a reaction from the bot. Keep an eye out for them!", colour=bot_embed_colour)
+  counting_game_info = discord.Embed(title="The Counging Game:", description="This is the bot's primary purpose, to run the counting game. The rules are pretty simple.\n - Count in consecutive numbers, the goal is to get as high as possible.\n - You cannot count twice in a row.\n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. If this happens, you'll be able to start the count again at the designated number.\n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!", colour=bot_embed_colour)
   counting_game_info.set_footer(text="Page 1 of 2")
 
   help_embed_list = [counting_game_info, help_command_list]
@@ -290,23 +290,21 @@ async def helpmessage(interaction: discord.Interaction):
       self.current_page = 0
 
     @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary)
-    async def previous_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def previous_page(self, interaction: discord.Interaction, button: discord.ui.Button):
       if not interaction.user == self.user:
         return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
-      view = interaction.message.view
-      if view.current_page == 1:
-        view.current_page -= 1
+      if self.current_page == 1:
+        self.current_page -= 1
         await interaction.response.edit_message(embed=help_embed_list[view.current_page], view=view)
       else:
         return await interaction.response.send_message("<a:cross:1329494914945515593> You are already on the first page.", ephemeral=True)
 
     @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary)
-    async def next_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
       if not interaction.user == self.user:
         return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
-      view = interaction.message.view
-      if view.current_page == 0:
-        view.current_page += 1
+      if self.current_page == 0:
+        self.current_page += 1
         await interaction.response.edit_message(embed=help_embed_list[view.current_page], view=view)
       else:
         return await interaction.response.send_message("<a:cross:1329494914945515593> You are already on the last page.", ephemeral=True)
