@@ -284,13 +284,14 @@ async def helpmessage(interaction: discord.Interaction):
   help_embed_list = [counting_game_info, help_command_list]
 
   class HelpPage(discord.ui.View):
-    def __init__(self):
+    def __init__(self, user):
       super().__init__(timeout=None)
+      self.user = user
       self.current_page = 0
 
     @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary)
     async def previous_page(self, button: discord.ui.Button, interaction: discord.Interaction):
-      if not interaction.user == interaction.message.author:
+      if not interaction.user == self.user:
         return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
       view = interaction.message.view
       if view.current_page == 1:
@@ -301,7 +302,7 @@ async def helpmessage(interaction: discord.Interaction):
 
     @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary)
     async def next_page(self, button: discord.ui.Button, interaction: discord.Interaction):
-      if not interaction.user == interaction.message.author:
+      if not interaction.user == self.user:
         return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
       view = interaction.message.view
       if view.current_page == 0:
@@ -310,7 +311,7 @@ async def helpmessage(interaction: discord.Interaction):
       else:
         return await interaction.response.send_message("<a:cross:1329494914945515593> You are already on the last page.", ephemeral=True)
 
-  view = HelpPage()
+  view = HelpPage(user=interaction.user)
   await interaction.response.send_message(embed=help_embed_list[0], view=view)
 
 
