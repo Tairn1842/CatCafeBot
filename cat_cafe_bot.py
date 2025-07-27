@@ -267,12 +267,51 @@ async def botping(interaction: discord.Interaction):
   pingembed = discord.Embed(title="Pong", description=f"-# The bot took {latency:.2f} ms to respond to this command.", colour=bot_embed_colour)
   await interaction.response.send_message(embed=pingembed)
 
-@bot.tree.command(name="help", description="A list of the bot's commands.")
+
+#help command
+
+@bot.tree.command(name="help", description="How does the bot work?")
 async def helpmessage(interaction: discord.Interaction):
-  helpembed = discord.Embed(title="Help Menu:", description="A list of this bot's commands. They're all slash commands, there is no prefix.", colour=bot_embed_colour)
+
+  help_command_list = discord.Embed(title="Help Menu:", description="A list of this bot's commands. They're all slash commands, there is no prefix.", colour=bot_embed_colour)
   for cmd in bot.tree.get_commands():
-    helpembed.add_field(name=f"/{cmd.name}", value=cmd.description, inline=False)
-  await interaction.response.send_message(embed=helpembed)
+    help_command_list.add_field(name=f"/{cmd.name}", value=cmd.description, inline=False)
+  help_command_list.set_footer(text="Page 2 of 2")
+
+  counting_game_info = discord.Embed(title="The Counging Game:", description="This is the bot's primary purpose, to run the counting game. The rules are pretty simple.\n - Count in consecutive numbers, the goal is to get as high as possible.\n - You cannot count twice in a row.\n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. If this happens, you'll be able to start the count again at the designated number.\n -  Some numbers are special and will merti a reaction from the bot. Keep an eye out for them!", colour=bot_embed_colour)
+  counting_game_info.set_footer(text="Page 1 of 2")
+
+  help_embed_list = [counting_game_info, help_command_list]
+
+  class HelpPage(discord.ui.View):
+    def __init__(self):
+      super().__init__(timeout=None)
+      self.current_page = 0
+
+    @discord.ui.button(label="Previous", style=discord.ButtonStyle.secondary)
+    async def previous_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+      if not interaction.user == interaction.message.author:
+        return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
+      view = interaction.message.view
+      if view.current_page == 1:
+        view.current_page -= 1
+        await interaction.response.edit_message(embed=help_embed_list[view.current_page], view=view)
+      else:
+        return await interaction.response.send_message("<a:cross:1329494914945515593> You are already on the first page.", ephemeral=True)
+
+    @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary)
+    async def next_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+      if not interaction.user == interaction.message.author:
+        return await interaction.response.send_message("<a:cross:1329494914945515593> This is not your command. Shoo!", ephemeral=True)
+      view = interaction.message.view
+      if view.current_page == 0:
+        view.current_page += 1
+        await interaction.response.edit_message(embed=help_embed_list[view.current_page], view=view)
+      else:
+        return await interaction.response.send_message("<a:cross:1329494914945515593> You are already on the last page.", ephemeral=True)
+
+  view = HelpPage()
+  await interaction.response.send_message(embed=help_embed_list[0], view=view)
 
 
 ### Owner-only manual commands.
