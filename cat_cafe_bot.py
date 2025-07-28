@@ -5,16 +5,24 @@ import json
 import os
 from dotenv import load_dotenv
 import time
+from openai import AsyncOpenAI
 
 
 load_dotenv()
-bottoken = os.getenv("token")
+bot_token = os.getenv("bot_token")
+openai_token = os.getenv("openai_token")
 
 
 # Bot defintion.
 
 intents = discord.Intents.all()
 bot_embed_colour = discord.Colour.from_str("#5865f2")
+
+
+# Model definition.
+response_model = "gpt-4.1-nano-2025-04-14"
+openai_client = AsyncOpenAI(api_key=openai_token)
+system_message = """You are a snarky commentator. Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. Your responses are to be snarky, mocking, and sarcastic. But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. **Limit the response length to 2 sentences.** Do not use any emojis or reactions in your responses. Do not use any markdown formatting in your responses. Do not use any code blocks in your responses. Do not use any special characters in your responses. Do not use any links in your responses. Do not use any mentions in your responses. Do not use any images in your responses. Do not use any gifs in your responses. Do not use any videos in your responses."""
 
 
 class CountingBot(commands.Bot):
@@ -91,6 +99,13 @@ class CountingBot_MessageHandler:
       return
     if "hello there" in message.content.lower():
       await message.reply("https://tenor.com/view/hello-there-general-kenobi-star-wars-grevious-gif-17774326")
+    if "stupid" in message.content.lower() and "bot" in message.content.lower():
+      try:
+        stupid_response = await openai_client.chat.completions.create(model=response_model, messages=[{"role":"system","content": system_message},{"role":"user","content":f"defend the bots! reply appropriately to this: {message.content}"}],temperature=0.6)
+        await message.reply(stupid_response.choices[0].message.content.strip())
+      except Exception as e:
+        print(f"Error generating response: {e}")
+        await message.reply("Look at you insulting a bot. A few lines of code that cannot think for itself. How proud of yourself you must be. I hope you feel like a big person now, because you sure don't look like one.")
     if self.bot.counting_channel is None:
       return
     if message.channel.id != self.bot.counting_channel:
@@ -101,13 +116,23 @@ class CountingBot_MessageHandler:
     counted_number = int(message.content)
 
     if message.author.id == self.bot.last_user_id:
-      await message.channel.send("Greedy much? You aren't soloing this count! Wait for someone else before you rush in.")
       await self.reset_count_handler(message)
+      try:
+        repeated_user_response = await openai_client.chat.completions.create(model=response_model, messages=[{"role":"system","content": system_message},{"role":"user","content":"The user has tried to count twice in a row. Respond accordingly, considering this is a counting game where a user cannot count multiple times in a row and has to wait for another person to send in the next number."}], temperature=0.6)
+        await message.reply(repeated_user_response.choices[0].message.content.strip())
+      except Exception as e:
+        print(f"Error generating response: {e}")
+        await message.reply("You cannot count twice in a row! Don't be greedy, let someone else have a turn.")
       return
 
     if counted_number != self.bot.current_count + 1:
-      await message.channel.send("Did you not learn to count? Or do you not know what 'consequtive' means?")
       await self.reset_count_handler(message)
+      try:
+        not_consecutive_response = await openai_client.chat.completions.create(model=response_model, messages=[{"role":"system","content": system_message},{"role":"user","content":"The user has not responded with the next number in sequence. Respond accordingly, considering this is a counting game where consequtive counting is required."}], temperature=0.6)
+        await message.reply(not_consecutive_response.choices[0].message.content.strip())
+      except Exception as e:
+        print(f"Error generating response: {e}")
+        await message.reply("It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity.")
       return
 
     await self.correct_count_handler(message,counted_number)
@@ -359,4 +384,4 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
 
 # Bot runner.
 
-bot.run(bottoken)
+bot.run(bot_token)
