@@ -178,13 +178,13 @@ class CountingBot_MessageHandler:
       if str(counted_number) == str(counted_number)[::-1]:
         checker_response.append("Hey, that's a palindrome[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)")
       # SixtyNice Checker
-      if "69" in str(counted_number):
+      if "69" in str(counted_number) and "69" not in str(counted_number-1):
         checker_response.append("https://tenor.com/view/noice-nice-click-gif-8843762")
       # Order 66 Checker
-      if "66" in str(counted_number):
+      if "66" in str(counted_number) and "66" not in str(counted_number-1):
         checker_response.append("https://tenor.com/view/execute-order66-order66-66-palpatine-star-wars-gif-20468321")
       # Devil's Number Checker
-      if counted_number == 666:
+      if "666" in str(counted_number) and "666" not in str(counted_number-1):
         checker_response.append("https://tenor.com/view/hail-satan-gif-25445039")
       return checker_response
 
