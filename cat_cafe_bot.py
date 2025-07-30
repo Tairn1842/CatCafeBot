@@ -376,7 +376,7 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
         return
     if before.id == bot.latest_message:
         await before.channel.send(
-            f"""{before.author.mention} has edited their message, the sneaky devil! 
+            f"""{before.author.mention} has edited their message, the sneaky devil!
             \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
         )
 
@@ -389,7 +389,7 @@ async def on_message_delete(message):
         return
     if message.id == bot.latest_message:
         await message.channel.send(
-            f"""{message.author.mention} has deleted their message, the sneaky devil! 
+            f"""{message.author.mention} has deleted their message, the sneaky devil!
             \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
         )
 
@@ -486,8 +486,7 @@ async def helpmessage(interaction: discord.Interaction):
         description="""This is the bot's primary purpose, to run the counting game. The rules are pretty simple:
         \n - Count in consecutive numbers, the goal is to get as high as possible.
         \n - You cannot count twice in a row.
-        \n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. 
-        If this happens, you'll be able to start the count again at the designated number.
+        \n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100.
         \n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!""",
         colour=bot_embed_colour,
     )
@@ -569,7 +568,7 @@ async def nitrosetup(ctx: commands.Context):
     nitro_role_list = [ctx.guild.get_role(rid) for rid in list(role_list.values())]
     mentions = "\n".join(role.mention for role in nitro_role_list)
     nitro_embed = discord.Embed(
-        title="""Congratulations! If you're here, you've either boosted the server or are level 100 or higher. 
+        title="""Congratulations! If you're here, you've either boosted the server or are level 100 or higher.
         \nAs a reward for your contribution, you can pick a colour role from those listed below:""",
         description=mentions,
         colour=bot_embed_colour,
