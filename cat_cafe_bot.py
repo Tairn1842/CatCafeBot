@@ -24,7 +24,12 @@ bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 openai_client = AsyncOpenAI(api_key=openai_token)
 
-system_message = """You are a snarky commentator. Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. Your responses are to be snarky, mocking, and sarcastic. But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. **Limit the response length to 2 sentences.** Do not use any emojis or reactions in your responses. Do not use any markdown formatting in your responses. Do not use any code blocks in your responses. Do not use any special characters in your responses. Do not use any links in your responses. Do not use any mentions in your responses. Do not use any images in your responses. Do not use any gifs in your responses. Do not use any videos in your responses."""
+system_message = """You are a snarky commentator. 
+Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. 
+Your responses are to be snarky, mocking, and sarcastic. Try acting bored and annoyed by the user. 
+But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. 
+**Limit the response length to 2 sentences.** 
+**Your responses are not to contain any emojis, reactions, markdowns, codeblocks, links, mentions, or media.**"""
 
 
 async def openai_response(user_prompt):
@@ -128,13 +133,16 @@ class CountingBot_MessageHandler:
         if pattern.search(message.content):
             try:
                 stupid_response = await openai_response(
-                    user_prompt=f"You are to defend the bots from people insulting them. Respond appropriately to {message.content}"
+                    user_prompt=f"""You are to **defend the bots from people** that are insulting them. 
+                    Respond appropriately to {message.content}"""
                 )
                 await message.reply(stupid_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
                 await message.reply(
-                    "Look at you insulting a bot. A few lines of code that cannot think for itself. How proud of yourself you must be. I hope you feel like a big person now, because you sure don't look like one."
+                    """Look at you insulting a bot. A few lines of code that cannot think for itself. 
+                    How proud of yourself you must be. 
+                    I hope you feel like a big person now, because you sure don't look like one."""
                 )
 
         if self.bot.counting_channel is None:
@@ -152,13 +160,14 @@ class CountingBot_MessageHandler:
             await self.reset_count_handler(message)
             try:
                 repeated_user_response = await openai_response(
-                    user_prompt=f"The user has tried to count twice in a row. Respond accordingly, considering this is a counting game where consecutive counting is required."
+                    user_prompt=f"""The user has tried to count twice in a row. 
+                    Respond accordingly, considering this is a counting game where consecutive counting is required."""
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
                 await message.reply(
-                    "You cannot count twice in a row! Don't be greedy, let someone else have a turn."
+                    """You cannot count twice in a row! Don't be greedy, let someone else have a turn."""
                 )
             return
 
@@ -166,13 +175,14 @@ class CountingBot_MessageHandler:
             await self.reset_count_handler(message)
             try:
                 not_consecutive_response = await openai_response(
-                    user_prompt=f"The user has counted {counted_number}, which is not the next number in the counting game. Respond accordingly, considering this is a counting game where consecutive counting is required."
+                    user_prompt=f"""The user has counted {counted_number}, which is not the next number in the counting game. 
+                    Respond accordingly, considering this is a counting game where consecutive counting is required."""
                 )
                 await message.reply(not_consecutive_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
                 await message.reply(
-                    "It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."
+                    """It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."""
                 )
             return
 
@@ -207,12 +217,14 @@ class CountingBot_MessageHandler:
                 for i in range(len(num_digits) - 1)
             ):
                 checker_response.append(
-                    "Hey, that's a perfect sequence[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"
+                    """Hey, that's a perfect sequence[!]
+                    (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
                 )
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
                 checker_response.append(
-                    "Hey, that's a palindrome[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"
+                    """Hey, that's a palindrome[!]
+                    (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
                 )
             # SixtyNice Checker
             if "69" in str(counted_number) and "69" not in str(counted_number - 1):
@@ -364,7 +376,8 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
         return
     if before.id == bot.latest_message:
         await before.channel.send(
-            f"{before.author.mention} has edited their message, the sneaky devil! Their number was {bot.current_count}. The next number is {bot.next_number}."
+            f"""{before.author.mention} has edited their message, the sneaky devil! 
+            \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
         )
 
 
@@ -376,7 +389,8 @@ async def on_message_delete(message):
         return
     if message.id == bot.latest_message:
         await message.channel.send(
-            f"{message.author.mention} has deleted their message, the sneaky devil! Their number was {bot.current_count}. The next number is {bot.next_number}."
+            f"""{message.author.mention} has deleted their message, the sneaky devil! 
+            \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
         )
 
 
@@ -387,7 +401,15 @@ async def on_message_delete(message):
 async def bot_status(interaction: discord.Interaction):
     statusembed = discord.Embed(
         title="All bot stats:",
-        description=f"Channel: <#{bot.counting_channel}>\nCurrent Count: {bot.current_count}\nNext: {bot.next_number}\nLast user: <@{bot.last_user_id}>\nReset Point: {(bot.current_count // 100) * 100}\nRecord: {bot.counting_record}\nRecord Holder: <@{bot.record_holder}>\nCurrent Streak: {bot.current_streak}\nRecord Streak: {bot.record_streak}",
+        description=f"""Channel: <#{bot.counting_channel}>\n
+        Current Count: {bot.current_count}\n
+        Next: {bot.next_number}\n
+        Last user: <@{bot.last_user_id}>\n
+        Reset Point: {(bot.current_count // 100) * 100}\n
+        Record: {bot.counting_record}\n
+        Record Holder: <@{bot.record_holder}>\n
+        Current Streak: {bot.current_streak}\n
+        Record Streak: {bot.record_streak}""",
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=statusembed)
@@ -397,7 +419,8 @@ async def bot_status(interaction: discord.Interaction):
 async def record(interaction: discord.Interaction):
     recordmebed = discord.Embed(
         title="Counting Record:",
-        description=f"This server's counting record is __**{bot.counting_record}**__.\nIt was achieved by <@{bot.record_holder}>.",
+        description=f"""This server's counting record is __**{bot.counting_record}**__.
+        \nIt was achieved by <@{bot.record_holder}>.""",
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=recordmebed)
@@ -410,7 +433,8 @@ async def record(interaction: discord.Interaction):
 async def nextnumber(interaction: discord.Interaction):
     nextembed = discord.Embed(
         title="Next Number:",
-        description=f"The next number is __**{bot.next_number}**__.\nThe last person to count was <@{bot.last_user_id}>.",
+        description=f"""The next number is __**{bot.next_number}**__.
+        \nThe last person to count was <@{bot.last_user_id}>.""",
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=nextembed)
@@ -422,7 +446,8 @@ async def nextnumber(interaction: discord.Interaction):
 async def streakinfo(interaction: discord.Interaction):
     streakembed = discord.Embed(
         title="Streak Information:",
-        description=f"The current streak is __**{bot.current_streak}**__.\nThe streak record is __**{bot.record_streak}**__.",
+        description=f"""The current streak is __**{bot.current_streak}**__.
+        \nThe streak record is __**{bot.record_streak}**__.""",
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=streakembed)
@@ -458,7 +483,12 @@ async def helpmessage(interaction: discord.Interaction):
 
     counting_game_info = discord.Embed(
         title="The Counging Game:",
-        description="This is the bot's primary purpose, to run the counting game. The rules are pretty simple.\n - Count in consecutive numbers, the goal is to get as high as possible.\n - You cannot count twice in a row.\n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. If this happens, you'll be able to start the count again at the designated number.\n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!",
+        description="""This is the bot's primary purpose, to run the counting game. The rules are pretty simple:
+        \n - Count in consecutive numbers, the goal is to get as high as possible.
+        \n - You cannot count twice in a row.
+        \n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100. 
+        If this happens, you'll be able to start the count again at the designated number.
+        \n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!""",
         colour=bot_embed_colour,
     )
     counting_game_info.set_footer(text="Page 1 of 2")
@@ -539,7 +569,8 @@ async def nitrosetup(ctx: commands.Context):
     nitro_role_list = [ctx.guild.get_role(rid) for rid in list(role_list.values())]
     mentions = "\n".join(role.mention for role in nitro_role_list)
     nitro_embed = discord.Embed(
-        title="Thank you for boosting the server! As a reward for your contribution, you can pick a colour role from those listed below.",
+        title="""Thank you for boosting the server! 
+        \nAs a reward for your contribution, you can pick a colour role from those listed below:""",
         description=mentions,
         colour=bot_embed_colour,
     )
