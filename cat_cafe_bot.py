@@ -569,7 +569,7 @@ async def nitrosetup(ctx: commands.Context):
     nitro_role_list = [ctx.guild.get_role(rid) for rid in list(role_list.values())]
     mentions = "\n".join(role.mention for role in nitro_role_list)
     nitro_embed = discord.Embed(
-        title="""Thank you for boosting the server! 
+        title="""Congratulations! If you're here, you've either boosted the server or are level 100 or higher. 
         \nAs a reward for your contribution, you can pick a colour role from those listed below:""",
         description=mentions,
         colour=bot_embed_colour,
