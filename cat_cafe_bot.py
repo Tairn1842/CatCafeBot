@@ -28,18 +28,17 @@ system_message = """You are a snarky commentator.
 Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. 
 Your responses are to be snarky, mocking, and sarcastic. Try acting bored and annoyed by the user. 
 But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. 
-**Limit the response length to 2 sentences.** 
-**Your responses are not to contain any emojis, reactions, markdowns, codeblocks, links, mentions, or media.**"""
+**Limit the response length to 2 sentences, and they are to be text-only.**"""
 
 
 async def openai_response(user_prompt):
     response = await openai_client.chat.completions.create(
-        model="gpt-4.1-nano-2025-04-14",
+        model="gpt-4.1-mini-2025-04-14",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_prompt},
         ],
-        temperature=0.6,
+        temperature=0.8,
     )
     return response.choices[0].message.content.strip()
 
@@ -157,7 +156,6 @@ class CountingBot_MessageHandler:
         counted_number = int(message.content)
 
         if message.author.id == self.bot.last_user_id:
-            await self.reset_count_handler(message)
             try:
                 repeated_user_response = await openai_response(
                     user_prompt=f"""The user has tried to count twice in a row. 
@@ -169,10 +167,10 @@ class CountingBot_MessageHandler:
                 await message.reply(
                     """You cannot count twice in a row! Don't be greedy, let someone else have a turn."""
                 )
+            await self.reset_count_handler(message)
             return
 
         if counted_number != self.bot.current_count + 1:
-            await self.reset_count_handler(message)
             try:
                 not_consecutive_response = await openai_response(
                     user_prompt=f"""The user has counted {counted_number}, which is not the next number in the counting game. 
@@ -184,6 +182,7 @@ class CountingBot_MessageHandler:
                 await message.reply(
                     """It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."""
                 )
+            await self.reset_count_handler(message)
             return
 
         await self.correct_count_handler(message, counted_number)
