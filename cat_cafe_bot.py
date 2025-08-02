@@ -5,7 +5,8 @@ import json
 import os
 from dotenv import load_dotenv
 import time
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 import re
 load_dotenv()
 
@@ -18,8 +19,7 @@ bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 # Model definition.
 
-gemini_client = AsyncOpenAI(api_key=os.getenv("gemini_token"),
-                            base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
+gemini_client = genai.Client(api_key=os.getenv("gemini_token"))
 
 system_message = """**You are a snarky commentator and defender of bots.**
 Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. 
@@ -29,23 +29,16 @@ But remember that you operate in a server intended to be wholesome, so don't mak
 
 
 async def gemini_response(user_prompt):
-    response = await gemini_client.chat.completions.create(
-        model="gemini-2.5-pro",
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.5,
-        extra_body={
-            "google":{
-                "thinking_config":{
-                    "thinking_budget":128,
-                    "requirement":"REQUIRE_BUDGET"
-            }
-        }
-    }
-    )
-    return response.choices[0].message.content.strip()
+    response = await gemini_client.aio.models.generate_content(
+            model="gemini-2.5-pro",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(thinking_budget=128),
+                system_instruction=system_message,
+                temperature=0.5,
+        ),
+            contents=user_prompt
+        )
+    return response.text.strip()
 
 
 class CountingBot(commands.Bot):
