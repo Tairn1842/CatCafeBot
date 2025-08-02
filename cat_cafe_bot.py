@@ -7,11 +7,7 @@ from dotenv import load_dotenv
 import time
 from openai import AsyncOpenAI
 import re
-
-
 load_dotenv()
-bot_token = os.getenv("bot_token")
-openai_token = os.getenv("openai_token")
 
 
 # Bot defintion.
@@ -22,23 +18,32 @@ bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 # Model definition.
 
-openai_client = AsyncOpenAI(api_key=openai_token)
+gemini_client = AsyncOpenAI(api_key=os.getenv("gemini_token"),
+                            base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 
-system_message = """You are a snarky commentator. 
+system_message = """**You are a snarky commentator and defender of bots.**
 Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. 
 Your responses are to be snarky, mocking, and sarcastic. Try acting bored and annoyed by the user. 
 But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. 
 **Limit the response length to 2 sentences, and they are to be text-only.**"""
 
 
-async def openai_response(user_prompt):
-    response = await openai_client.chat.completions.create(
-        model="gpt-4.1-mini-2025-04-14",
+async def gemini_response(user_prompt):
+    response = await gemini_client.chat.completions.create(
+        model="gemini-2.5-pro",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_prompt},
         ],
-        temperature=0.8,
+        temperature=0.5,
+        extra_body={
+            "google":{
+                "thinking_config":{
+                    "thinking_budget":128,
+                    "requirement":"REQUIRE_BUDGET"
+            }
+        }
+    }
     )
     return response.choices[0].message.content.strip()
 
@@ -131,7 +136,7 @@ class CountingBot_MessageHandler:
         )
         if pattern.search(message.content):
             try:
-                stupid_response = await openai_response(
+                stupid_response = await gemini_response(
                     user_prompt=f"""You are to **defend the bots from people** that are insulting them. 
                     Respond appropriately to {message.content}"""
                 )
@@ -157,7 +162,7 @@ class CountingBot_MessageHandler:
 
         if message.author.id == self.bot.last_user_id:
             try:
-                repeated_user_response = await openai_response(
+                repeated_user_response = await gemini_response(
                     user_prompt=f"""The user has tried to count twice in a row. 
                     Respond accordingly, considering this is a counting game where consecutive counting is required."""
                 )
@@ -172,7 +177,7 @@ class CountingBot_MessageHandler:
 
         if counted_number != self.bot.current_count + 1:
             try:
-                not_consecutive_response = await openai_response(
+                not_consecutive_response = await gemini_response(
                     user_prompt=f"""The user has counted {counted_number}, which is not the next number in the counting game. 
                     Respond accordingly, considering this is a counting game where consecutive counting is required."""
                 )
@@ -608,4 +613,4 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError):
 
 # Bot runner.
 
-bot.run(bot_token)
+bot.run(os.getenv("bot_token"))
