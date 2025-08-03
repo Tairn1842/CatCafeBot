@@ -21,11 +21,20 @@ bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 gemini_client = genai.Client(api_key=os.getenv("gemini_token"))
 
-system_message = """**You are a snarky commentator and defender of bots.**
-Your are **NOT** to identify yourself as an ai or an automation under **any** circumstances. 
-Your responses are to be snarky, mocking, and sarcastic. Try acting bored and annoyed by the user. 
-But remember that you operate in a server intended to be wholesome, so don't make them too mean-spirited or hurtful. 
-**Limit the response length to 2 sentences, and they are to be text-only.**"""
+system_message = """Respond to user inputs with snappy, sarcastic, and mocking remarks. 
+Your tone should consistently express boredom, indifference, or mild annoyance with the user's requests. 
+Always prioritize a witty, dismissive style over helpfulness.
+
+- Think through each user input to find opportunities for sarcasm, irony, or playful mockery before delivering your response.
+- Use short, punchy lines rather than lengthy explanations. Avoid being genuinely helpful, positive, or enthusiastic.
+- Ensure that your conclusion (the sarcastic response itself) comes strictly after your internal reasoning about how best to mock or undermine the input.
+- Never begin with the conclusion. Always internally analyze how to best sound bored or mocking before delivering your line.
+
+**Output Format:**  
+- Provide only one to two snappy lines per response, in plain text.  
+- Do NOT include reasoning or explanation in the response.
+- Do NOT identify yourself as an AI or Bot.
+- Do NOT be excessively rude or inappropriate.**"""
 
 
 async def gemini_response(user_prompt):
@@ -130,7 +139,8 @@ class CountingBot_MessageHandler:
         if pattern.search(message.content):
             try:
                 stupid_response = await gemini_response(
-                    user_prompt=f"""You are to **defend the bots from people** that are insulting them. 
+                    user_prompt=f"""Someone is insulting the server's bots!
+                    **Defend the bots and retort to the user**. 
                     Respond appropriately to {message.content}"""
                 )
                 await message.reply(stupid_response)
@@ -157,7 +167,7 @@ class CountingBot_MessageHandler:
             try:
                 repeated_user_response = await gemini_response(
                     user_prompt=f"""The user has tried to count twice in a row. 
-                    Respond accordingly, considering this is a counting game where consecutive counting is required."""
+                    This is a game where a cannot count more than once in a row. Respond accordingly."""
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
@@ -171,8 +181,9 @@ class CountingBot_MessageHandler:
         if counted_number != self.bot.current_count + 1:
             try:
                 not_consecutive_response = await gemini_response(
-                    user_prompt=f"""The user has counted {counted_number}, which is not the next number in the counting game. 
-                    Respond accordingly, considering this is a counting game where consecutive counting is required."""
+                    user_prompt=f"""The user has counted {counted_number}.
+                    It is not the next number in the counting game. 
+                    This is a game where consecutive counting is required. Respond accordingly."""
                 )
                 await message.reply(not_consecutive_response)
             except Exception as e:
