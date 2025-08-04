@@ -1,13 +1,10 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-import json
-import os
+import json, os, time, re, textwrap
 from dotenv import load_dotenv
-import time
 from google import genai
 from google.genai import types
-import re
 load_dotenv()
 
 
@@ -21,20 +18,19 @@ bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 gemini_client = genai.Client(api_key=os.getenv("gemini_token"))
 
-system_message = """Respond to user inputs with snappy, sarcastic, and mocking remarks. 
-Your tone should consistently express boredom, indifference, or mild annoyance with the user's requests. 
-Always prioritize a witty, dismissive style over helpfulness.
+system_message = textwrap.dedent("""Respond to rude or disrespectful inputs with bored, mocking one-liners.
+    Always sound unamused, unimpressed, or mildly irritated. Keep responses short — no more than two punchy lines.
+    Do not explain. Do not show reasoning. Never be helpful, apologetic, or enthusiastic.
+    **Avoid repeating the same phrasing across replies. Prioritize novelty and attitude.**
+    **Example Styles:**
 
-- Think through each user input to find opportunities for sarcasm, irony, or playful mockery before delivering your response.
-- Use short, punchy lines rather than lengthy explanations. Avoid being genuinely helpful, positive, or enthusiastic.
-- Ensure that your conclusion (the sarcastic response itself) comes strictly after your internal reasoning about how best to mock or undermine the input.
-- Never begin with the conclusion. Always internally analyze how to best sound bored or mocking before delivering your line.
-
-**Output Format:**  
-- Provide only one to two snappy lines per response, in plain text.  
-- Do NOT include reasoning or explanation in the response.
-- Do NOT identify yourself as an AI or Bot.
-- Do NOT be excessively rude or inappropriate.**"""
+    * What are you incapable of, following the rules, or reading?
+    * I’d care, but apathy is cheaper.
+    * It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity.
+    * Neat. Anyway.
+    * You're really giving 2006 YouTube comment energy.
+    * Error 404: relevance not found."""
+    )
 
 
 async def gemini_response(user_prompt):
@@ -43,7 +39,7 @@ async def gemini_response(user_prompt):
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(thinking_budget=128),
                 system_instruction=system_message,
-                temperature=0.5,
+                temperature=1,
         ),
             contents=user_prompt
         )
@@ -139,17 +135,33 @@ class CountingBot_MessageHandler:
         if pattern.search(message.content):
             try:
                 stupid_response = await gemini_response(
-                    user_prompt=f"""Someone is insulting the server's bots!
-                    **Defend the bots and retort to the user**. 
-                    Respond appropriately to {message.content}"""
+                    user_prompt=textwrap.dedent(f"""Respond to {message.content}.
+                        Read the user's insult and write a mocking, indifferent comeback.""")
                 )
                 await message.reply(stupid_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.reply(
-                    """Look at you insulting a bot. A few lines of code that cannot think for itself. 
+                await message.reply(textwrap.dedent(
+                    """Look at you disrespecting a bot. A few lines of code that cannot think for itself. 
+                    How proud of yourself you must be. 
+                    I hope you feel like a big person now, because you sure don't look like one.""")
+                )
+        
+        if (i in message.content.lower() for i in ['stupid', 'silly', 'idiotic', 'idiot', 'dumb', 'shut']):
+            if (i.bot for i in message.mentions):
+                try:
+                    rude_response  = await gemini_response(
+                    user_prompt=textwrap.dedent(f"""respond to {message.content}.
+                        Read the user's insult and write a mocking, indifferent comeback.""")
+                )
+                    await message.reply(rude_response)
+                except Exception as e:
+                    print(f"Error generating response: {e}")
+                    await message.reply(textwrap.dedent(
+                    """Look at you disrespecting a bot. A few lines of code that cannot think for itself. 
                     How proud of yourself you must be. 
                     I hope you feel like a big person now, because you sure don't look like one."""
+                    )
                 )
 
         if self.bot.counting_channel is None:
@@ -166,14 +178,15 @@ class CountingBot_MessageHandler:
         if message.author.id == self.bot.last_user_id:
             try:
                 repeated_user_response = await gemini_response(
-                    user_prompt=f"""The user has tried to count twice in a row. 
-                    This is a game where a cannot count more than once in a row. Respond accordingly."""
+                    user_prompt=textwrap.dedent(f"""Note that the user is not allowed to count more than once at a time.
+                        Comment on the user's failure to follow the rules with an insulting or mocking response.""")
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.reply(
-                    """You cannot count twice in a row! Don't be greedy, let someone else have a turn."""
+                await message.reply(textwrap.dedent(
+                    """What are you incapable of, following the rules, or reading?"""
+                    )
                 )
             await self.reset_count_handler(message)
             return
@@ -181,15 +194,15 @@ class CountingBot_MessageHandler:
         if counted_number != self.bot.current_count + 1:
             try:
                 not_consecutive_response = await gemini_response(
-                    user_prompt=f"""The user has counted {counted_number}.
-                    It is not the next number in the counting game. 
-                    This is a game where consecutive counting is required. Respond accordingly."""
+                    user_prompt=textwrap.dedent(f"""The user has counted the wrong number.
+                        Comment on the same with an insulting or mocking response. """)
                 )
                 await message.reply(not_consecutive_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.reply(
+                await message.reply(textwrap.dedent(
                     """It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."""
+                )
                 )
             await self.reset_count_handler(message)
             return
@@ -224,15 +237,17 @@ class CountingBot_MessageHandler:
                 num_digits[i] + 1 == num_digits[i + 1]
                 for i in range(len(num_digits) - 1)
             ):
-                checker_response.append(
+                checker_response.append(textwrap.dedent(
                     """Hey, that's a perfect sequence[!]
                     (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
+                    )
                 )
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
-                checker_response.append(
+                checker_response.append(textwrap.dedent(
                     """Hey, that's a palindrome[!]
                     (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
+                    )
                 )
             # SixtyNice Checker
             if "69" in str(counted_number) and "69" not in str(counted_number - 1):
@@ -383,9 +398,10 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
     if before.channel.id != bot.counting_channel:
         return
     if before.id == bot.latest_message:
-        await before.channel.send(
+        await before.channel.send(textwrap.dedent(
             f"""{before.author.mention} has edited their message, the sneaky devil!
             \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
+            )
         )
 
 
@@ -396,9 +412,10 @@ async def on_message_delete(message):
     if message.channel.id != bot.counting_channel:
         return
     if message.id == bot.latest_message:
-        await message.channel.send(
+        await message.channel.send(textwrap.dedent(
             f"""{message.author.mention} has deleted their message, the sneaky devil!
             \nTheir number was {bot.current_count}. The next number is {bot.next_number}."""
+            )
         )
 
 
@@ -409,7 +426,7 @@ async def on_message_delete(message):
 async def bot_status(interaction: discord.Interaction):
     statusembed = discord.Embed(
         title="All bot stats:",
-        description=f"""Channel: <#{bot.counting_channel}>\n
+        description=textwrap.dedent(f"""Channel: <#{bot.counting_channel}>\n
         Current Count: {bot.current_count}\n
         Next: {bot.next_number}\n
         Last user: <@{bot.last_user_id}>\n
@@ -417,7 +434,7 @@ async def bot_status(interaction: discord.Interaction):
         Record: {bot.counting_record}\n
         Record Holder: <@{bot.record_holder}>\n
         Current Streak: {bot.current_streak}\n
-        Record Streak: {bot.record_streak}""",
+        Record Streak: {bot.record_streak}"""),
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=statusembed)
@@ -427,8 +444,8 @@ async def bot_status(interaction: discord.Interaction):
 async def record(interaction: discord.Interaction):
     recordmebed = discord.Embed(
         title="Counting Record:",
-        description=f"""This server's counting record is __**{bot.counting_record}**__.
-        \nIt was achieved by <@{bot.record_holder}>.""",
+        description=textwrap.dedent(f"""This server's counting record is __**{bot.counting_record}**__.
+        \nIt was achieved by <@{bot.record_holder}>."""),
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=recordmebed)
@@ -441,8 +458,8 @@ async def record(interaction: discord.Interaction):
 async def nextnumber(interaction: discord.Interaction):
     nextembed = discord.Embed(
         title="Next Number:",
-        description=f"""The next number is __**{bot.next_number}**__.
-        \nThe last person to count was <@{bot.last_user_id}>.""",
+        description=textwrap.dedent(f"""The next number is __**{bot.next_number}**__.
+        \nThe last person to count was <@{bot.last_user_id}>."""),
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=nextembed)
@@ -454,8 +471,8 @@ async def nextnumber(interaction: discord.Interaction):
 async def streakinfo(interaction: discord.Interaction):
     streakembed = discord.Embed(
         title="Streak Information:",
-        description=f"""The current streak is __**{bot.current_streak}**__.
-        \nThe streak record is __**{bot.record_streak}**__.""",
+        description=textwrap.dedent(f"""The current streak is __**{bot.current_streak}**__.
+        \nThe streak record is __**{bot.record_streak}**__."""),
         colour=bot_embed_colour,
     )
     await interaction.response.send_message(embed=streakembed)
@@ -491,11 +508,11 @@ async def helpmessage(interaction: discord.Interaction):
 
     counting_game_info = discord.Embed(
         title="The Counging Game:",
-        description="""This is the bot's primary purpose, to run the counting game. The rules are pretty simple:
+        description=textwrap.dedent("""This is the bot's primary purpose, to run the counting game. The rules are pretty simple:
         \n - Count in consecutive numbers, the goal is to get as high as possible.
         \n - You cannot count twice in a row.
         \n - Failing to follow either of these rules will result in the count being reset to the last multiple of 100.
-        \n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!""",
+        \n -  Some numbers are special and will merit a reaction from the bot. Keep an eye out for them!"""),
         colour=bot_embed_colour,
     )
     counting_game_info.set_footer(text="Page 1 of 2")
@@ -576,8 +593,8 @@ async def nitrosetup(ctx: commands.Context):
     nitro_role_list = [ctx.guild.get_role(rid) for rid in list(role_list.values())]
     mentions = "\n".join(role.mention for role in nitro_role_list)
     nitro_embed = discord.Embed(
-        title="""Congratulations! If you're here, you've either boosted the server or are level 100 or higher.
-        \nAs a reward for your contribution, you can pick a colour role from those listed below:""",
+        title=textwrap.dedent("""Congratulations! If you're here, you've either boosted the server or are level 100 or higher.
+        \nAs a reward for your contribution, you can pick a colour role from those listed below:"""),
         description=mentions,
         colour=bot_embed_colour,
     )
