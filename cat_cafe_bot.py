@@ -132,23 +132,10 @@ class CountingBot_MessageHandler:
             r"\b(?:bot|bots)\b(?:[\s\W]+\w+){0,5}?[\s\W]+\b(?:stupid|silly|idiot|idiotic)\b",
             re.IGNORECASE,
         )
-        if pattern.search(message.content):
-            try:
-                stupid_response = await gemini_response(
-                    user_prompt=textwrap.dedent(f"""Respond to {message.content}.
-                        Read the user's insult and write a mocking, indifferent comeback.""")
-                )
-                await message.reply(stupid_response)
-            except Exception as e:
-                print(f"Error generating response: {e}")
-                await message.reply(textwrap.dedent(
-                    """Look at you disrespecting a bot. A few lines of code that cannot think for itself. 
-                    How proud of yourself you must be. 
-                    I hope you feel like a big person now, because you sure don't look like one.""")
-                )
+        is_insulting_bots = bool(pattern.search(message.content)) or (any(user.bot for user in message.mentions)
+            and (any(i in message.content.lower() for i in ['stupid', 'silly', 'idiotic', 'idiot', 'dumb', 'shut'])))
         
-        if (i in message.content.lower() for i in ['stupid', 'silly', 'idiotic', 'idiot', 'dumb', 'shut']):
-            if (i.bot for i in message.mentions):
+        if is_insulting_bots:
                 try:
                     rude_response  = await gemini_response(
                     user_prompt=textwrap.dedent(f"""respond to {message.content}.
