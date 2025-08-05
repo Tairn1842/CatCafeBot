@@ -1,4 +1,49 @@
-.vscode
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Environment
 .env
-*.json
-__pycache__
+.venv/
+env/
+venv/
+ENV/
+*.env
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Python dependency management
+*.egg-info/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+*.log
+
+# Testing
+.pytest_cache/
+.tox/
+coverage.*
+htmlcov/
+
+# Git
+.gitattributes
+.gitignore
+
+# Misc
+icb_memory.json
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+MANIFEST
+
+# Requirements backups (if any)
+requirements*.bak
