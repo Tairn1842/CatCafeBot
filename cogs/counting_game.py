@@ -21,7 +21,7 @@ class counting_game(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author.bot or self.bot.counting_channel is None or message.channel.id != self.bot.counting_channel:
             return
-        if not message.content.isdigit:
+        if not message.content.isdigit():
             return
 
         counted_number = int(message.content)
