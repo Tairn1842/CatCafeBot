@@ -29,8 +29,7 @@ class counting_game(commands.Cog):
         if message.author.id == self.bot.last_user_id:
             try:
                 repeated_user_response = await gemini_response(
-                    user_prompt=textwrap.dedent(f"""Note that the user is not allowed to count more than once at a time.
-                    Comment on the user's failure to follow the rules with an insulting or mocking response.""")
+                    user_prompt="Chastise the user for counting repeatedly."
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
@@ -45,8 +44,7 @@ class counting_game(commands.Cog):
         if counted_number != self.bot.current_count + 1:
             try:
                 not_consecutive_response = await gemini_response(
-                    user_prompt=textwrap.dedent(f"""The user has counted the wrong number.
-                    Comment on the same with an insulting or mocking response. """)
+                    user_prompt="Admonish the user for counting the wrong number."
                     )
                 await message.reply(not_consecutive_response)
             except Exception as e:
@@ -135,11 +133,22 @@ class counting_game(commands.Cog):
         if before.channel.id != self.bot.counting_channel:
             return
         if before.id == self.bot.latest_message:
-            await before.channel.send(textwrap.dedent(
-                f"""{before.author.mention} has edited their message, the sneaky devil!
-                \nTheir number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
+            try:
+                edited_response = await gemini_response(
+                    user_prompt="Inform the channel that the last person to count has edited their message."
                 )
-            )
+                await before.channel.send(textwrap.dedent(
+                    f"""{edited_response}\n The number was {self.bot.current_count}. 
+                    The next number is {self.bot.next_number}."""
+                    )
+                )
+            except Exception as e:
+                print(f"Error generating response: {e}")
+                await before.channel.send(textwrap.dedent(
+                    f"""{before.author.mention} has edited their message, the sneaky devil!
+                    \nThe number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
+                    )
+                )
 
 
     @commands.Cog.listener()
@@ -149,11 +158,22 @@ class counting_game(commands.Cog):
         if message.channel.id != self.bot.counting_channel:
             return
         if message.id == self.bot.latest_message:
-            await message.channel.send(textwrap.dedent(
-                f"""{message.author.mention} has deleted their message, the sneaky devil!
-                \nTheir number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
+            try:
+                deleted_response = await gemini_response(
+                    user_prompt="Inform the channel that the last person to count has deleted their message."
                 )
-            )
+                await message.channel.send(textwrap.dedent(
+                    f"""{deleted_response}\n The number was {self.bot.current_count}. 
+                    The next number is {self.bot.next_number}."""
+                    )
+                )
+            except Exception as e:
+                print(f"Error generating response: {e}")
+                await message.channel.send(textwrap.dedent(
+                    f"""{message.author.mention} has deleted their message, the sneaky devil!
+                    \nTheir number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
+                    )
+                )
 
 
     # slash commands
