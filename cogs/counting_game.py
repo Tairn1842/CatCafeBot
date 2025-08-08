@@ -2,7 +2,7 @@ import discord, textwrap
 from discord.ext import commands
 from discord import app_commands
 from main import CatCafeBot, bot_embed_colour
-from .ai_handler import openai_response
+from .ai_commentator import openai_response
 
 
 class counting_game(commands.Cog):
