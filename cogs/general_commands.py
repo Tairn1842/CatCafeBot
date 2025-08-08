@@ -68,13 +68,14 @@ class general_commands(commands.Cog):
     
     @app_commands.command(name="ping", description="How quickly is the bot responding?")
     async def botping(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         latency = self.bot.latency * 1000
         pingembed = discord.Embed(
             title="Pong",
             description=f"-# The bot took {latency:.2f} ms to respond to this command.",
             colour=bot_embed_colour,
         )
-        await interaction.response.send_message(embed=pingembed)
+        await interaction.followup.send(embed=pingembed)
     
     
     # help command
@@ -82,7 +83,7 @@ class general_commands(commands.Cog):
     
     @app_commands.command(name="help", description="How does the bot work?")
     async def helpmessage(self, interaction: discord.Interaction):
-
+        await interaction.response.defer()
         help_command_list = discord.Embed(
             title="Help Menu:",
             description="A list of this bot's commands. They're all slash commands, there is no prefix.",
@@ -107,7 +108,7 @@ class general_commands(commands.Cog):
         
         help_embed_list = [counting_game_info, help_command_list]
         view = HelpPage(user=interaction.user, embeds=help_embed_list)
-        await interaction.response.send_message(embed=help_embed_list[0], view=view)
+        await interaction.followup.send(embed=help_embed_list[0], view=view)
 
 
 async def setup(bot: CatCafeBot):

@@ -180,6 +180,7 @@ class counting_game(commands.Cog):
 
     @app_commands.command(name="status", description="A full run-down of the bot's status.")
     async def status(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         statusembed = discord.Embed(
             title="All bot stats:",
             description=textwrap.dedent(f"""Channel: <#{self.bot.counting_channel}>\n
@@ -193,18 +194,19 @@ class counting_game(commands.Cog):
             Record Streak: {self.bot.record_streak}"""),
             colour=self.bot_embed_colour,
         )
-        await interaction.response.send_message(embed=statusembed)
+        await interaction.followup.send(embed=statusembed)
 
 
     @app_commands.command(name="record", description="Displays this server's counting record.")
     async def record(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         recordmebed = discord.Embed(
             title="Counting Record:",
             description=textwrap.dedent(f"""This server's counting record is __**{self.bot.counting_record}**__.
             \nIt was achieved by <@{self.bot.record_holder}>."""),
             colour=self.bot_embed_colour,
         )
-        await interaction.response.send_message(embed=recordmebed)
+        await interaction.followup.send(embed=recordmebed)
 
 
     @app_commands.command(
@@ -212,26 +214,28 @@ class counting_game(commands.Cog):
         description="Tells you what the next number is. Because apparently reading is hard.",
     )
     async def nextnumber(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         nextembed = discord.Embed(
             title="Next Number:",
             description=textwrap.dedent(f"""The next number is __**{self.bot.next_number}**__.
             \nThe last person to count was <@{self.bot.last_user_id}>."""),
             colour=self.bot_embed_colour,
         )
-        await interaction.response.send_message(embed=nextembed)
+        await interaction.followup.send(embed=nextembed)
 
 
     @app_commands.command(
         name="streak", description="Displays the current and record counting streaks."
     )
     async def streakinfo(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         streakembed = discord.Embed(
             title="Streak Information:",
             description=textwrap.dedent(f"""The current streak is __**{self.bot.current_streak}**__.
             \nThe streak record is __**{self.bot.record_streak}**__."""),
             colour=self.bot_embed_colour,
         )
-        await interaction.response.send_message(embed=streakembed)
+        await interaction.followup.send(embed=streakembed)
     
     
     @commands.command()
