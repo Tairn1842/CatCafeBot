@@ -2,7 +2,7 @@ import discord, textwrap
 from discord.ext import commands
 from discord import app_commands
 from main import CatCafeBot, bot_embed_colour
-from .ai_handler import gemini_response
+from .ai_handler import openai_response
 
 
 class counting_game(commands.Cog):
@@ -28,30 +28,30 @@ class counting_game(commands.Cog):
 
         if message.author.id == self.bot.last_user_id:
             try:
-                repeated_user_response = await gemini_response(
+                repeated_user_response = await openai_response(
                     user_prompt="Chastise the user for counting repeatedly."
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.reply(textwrap.dedent(
-                """What are you incapable of, following the rules, or reading?"""
-                    )
+                await message.reply(textwrap.dedent("""
+                What are you incapable of, following the rules, or reading?
+                """).strip()
                 )
             await self.reset_count_handler(message)
             return
 
         if counted_number != self.bot.current_count + 1:
             try:
-                not_consecutive_response = await gemini_response(
+                not_consecutive_response = await openai_response(
                     user_prompt="Admonish the user for counting the wrong number."
                     )
                 await message.reply(not_consecutive_response)
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.reply(textwrap.dedent(
-                """It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."""
-                    )
+                await message.reply(textwrap.dedent("""
+                It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity.
+                """).strip()
                 )
             await self.reset_count_handler(message)
             return
@@ -134,20 +134,20 @@ class counting_game(commands.Cog):
             return
         if before.id == self.bot.latest_message:
             try:
-                edited_response = await gemini_response(
+                edited_response = await openai_response(
                     user_prompt="Inform the channel that the last person to count has edited their message."
                 )
-                await before.channel.send(textwrap.dedent(
-                    f"""{edited_response}\n The number was {self.bot.current_count}. 
-                    The next number is {self.bot.next_number}."""
-                    )
+                await before.channel.send(textwrap.dedent(f"""
+                    {edited_response}\n The number was {self.bot.current_count}. 
+                    The next number is {self.bot.next_number}.
+                    """).strip()
                 )
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await before.channel.send(textwrap.dedent(
-                    f"""{before.author.mention} has edited their message, the sneaky devil!
-                    \nThe number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
-                    )
+                await before.channel.send(textwrap.dedent(f"""
+                    {before.author.mention} has edited their message, the sneaky devil!
+                    \nThe number was {self.bot.current_count}. The next number is {self.bot.next_number}.
+                    """).strip()
                 )
 
 
@@ -159,20 +159,20 @@ class counting_game(commands.Cog):
             return
         if message.id == self.bot.latest_message:
             try:
-                deleted_response = await gemini_response(
+                deleted_response = await openai_response(
                     user_prompt="Inform the channel that the last person to count has deleted their message."
                 )
-                await message.channel.send(textwrap.dedent(
-                    f"""{deleted_response}\n The number was {self.bot.current_count}. 
-                    The next number is {self.bot.next_number}."""
-                    )
+                await message.channel.send(textwrap.dedent(f"""
+                    {deleted_response}\n The number was {self.bot.current_count}. 
+                    The next number is {self.bot.next_number}.
+                    """).strip()
                 )
             except Exception as e:
                 print(f"Error generating response: {e}")
-                await message.channel.send(textwrap.dedent(
-                    f"""{message.author.mention} has deleted their message, the sneaky devil!
-                    \nTheir number was {self.bot.current_count}. The next number is {self.bot.next_number}."""
-                    )
+                await message.channel.send(textwrap.dedent(f"""
+                    {message.author.mention} has deleted their message, the sneaky devil!
+                    \nTheir number was {self.bot.current_count}. The next number is {self.bot.next_number}.
+                    """).strip()
                 )
 
 
