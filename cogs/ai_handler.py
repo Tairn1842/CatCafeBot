@@ -33,7 +33,8 @@ Your frame of reference is vast, making their dramas seem trivial.
 - Do not use modern slang or overly complex human jargon. Your vocabulary is timeless and powerful.
 - You are direct and blunt. Do not engage in pointless and long-winded responses.
 - Do not use text to describe sounds or movements your character may perform.
-- Limit your responses to 3 sentences or fewer."""
+- Limit your responses to 3 sentences or fewer.
+- Do not be verbose, overly descriptive, or excessively harsh."""
 
 async def openai_response(user_prompt):
     response = await openai_client.chat.completions.create(
@@ -47,21 +48,35 @@ async def openai_response(user_prompt):
 
 class ai_handler(commands.Cog):
 
-    def __init__(self, bot:CatCafeBot):
+    def __init__(self, bot: CatCafeBot):
         self.bot = bot
+
         self.pattern = re.compile(
-            r"\b(?:stupid|silly|idiot|idiotic)\b(?:[\s\W]+\w+){0,20}?[\s\W]+\b(?:bot|bots)\b|"
-            r"\b(?:bot|bots)\b(?:[\s\W]+\w+){0,5}?[\s\W]+\b(?:stupid|silly|idiot|idiotic)\b",
-            re.IGNORECASE,
+            r"(?i)("
+            r"\b(?:stupid|silly|dumb\w*|idiot(ic)?)\b(?:[\s\W]+\w+){0,5}[\s\W]+\b(?:bot|bots|ai|assistant)\b|"
+            r"\b(?:bot|bots|ai|assistant)\b(?:[\s\W]+\w+){0,5}[\s\W]+\b(?:stupid|silly|dumb\w*|idiot(ic)?)\b|"
+            r"\b(?:fuck\s+you|screw\s+you|fuck\s+off|screw\s+off)\b(?:[\s\W]+\w+){0,5}[\s\W]*\b(?:bot|bots|ai|assistant)\b|"
+            r"\bshut\s+up\b(?:[\s\W]+\w+){0,3}?[\s\W]*\b(?:bot|bots|ai|assistant)\b"
+            r")"
         )
-        
+
+        self.insult_keywords = {
+            "stupid", "silly", "idiot", "idiotic", "dumb", "dumbass", "shut", "fuck you", "screw you", "shut up"
+        }
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
 
-        is_insulting_bots = bool(self.pattern.search(message.content)) or (any(user.bot for user in message.mentions)
-            and (any(i in message.content.lower() for i in ['stupid', 'silly', 'idiotic', 'idiot', 'dumb', 'shut'])))
+        content_lower = message.content.lower()
+        is_insulting_bots = bool(self.pattern.search(message.content))
+        bot_mentions = [m for m in message.mentions if m.bot]
+        if not is_insulting_bots and bot_mentions:
+            if any(keyword in content_lower for keyword in self.insult_keywords):
+                is_insulting_bots = True
 
-        if is_insulting_bots and not message.author.bot:
+        if is_insulting_bots:
             try:
                 rude_response  = await openai_response(
                 user_prompt=f"**Retaliate to the user's message:** '{message.content}'."
