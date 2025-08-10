@@ -47,3 +47,6 @@ MANIFEST
 
 # Requirements backups (if any)
 requirements*.bak
+
+# Testing file
+testing.py
