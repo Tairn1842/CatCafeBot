@@ -1,12 +1,13 @@
 from openai import AsyncOpenAI
 import discord, textwrap, re, os
 from discord.ext import commands
+from dotenv import load_dotenv
 from main import CatCafeBot
 
 
 # model definition
 
-
+load_dotenv()
 openai_client = AsyncOpenAI(api_key=os.getenv("openai_token"))
 
 system_message = """
