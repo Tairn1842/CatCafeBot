@@ -1,9 +1,9 @@
 import discord, textwrap
 from discord.ext import commands
 from discord import app_commands
-from main import CatCafeBot, bot_embed_colour
 from .ai_commentator import openai_response
 
+bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 class counting_game(commands.Cog):
     
@@ -12,7 +12,7 @@ class counting_game(commands.Cog):
     bluetick_reaction = "<a:bluetick:1329495657383329883>"
     hundred_reaction = "💯"
     
-    def __init__(self, bot:CatCafeBot):
+    def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.bot_embed_colour = bot_embed_colour
         self.bot.load_count()
@@ -262,5 +262,5 @@ class counting_game(commands.Cog):
             raise error
 
         
-async def setup(bot: CatCafeBot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(counting_game(bot))
