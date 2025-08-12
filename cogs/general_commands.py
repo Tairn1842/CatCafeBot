@@ -1,7 +1,10 @@
-import discord, textwrap
+import discord, textwrap, time
 from discord.ext import commands
 from discord import app_commands
-from main import CatCafeBot, bot_embed_colour
+
+
+bot_embed_colour = discord.Colour.from_str("#5865f2")
+
 
 class HelpPage(discord.ui.View):
     def __init__(self, user, embeds):
@@ -52,7 +55,7 @@ class HelpPage(discord.ui.View):
                 ,ephemeral=True)
 
 class general_commands(commands.Cog):
-    def __init__(self, bot: CatCafeBot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.bot_embed_colour = bot_embed_colour
     
@@ -90,9 +93,19 @@ class general_commands(commands.Cog):
             colour=bot_embed_colour,
         )
         for cmd in self.bot.tree.get_commands():
-            help_command_list.add_field(
-                name=f"/{cmd.name}", value=cmd.description, inline=False
-            )
+            if isinstance(cmd, app_commands.Group):
+                for sub in cmd.commands:
+                    help_command_list.add_field(
+                        name=f"{cmd.name} {sub.name}",
+                        value=sub.description or "No description available",
+                        inline=False,
+                    )
+            else:
+                help_command_list.add_field(
+                name=cmd.name, 
+                value=cmd.description or "No description available", 
+                inline=False
+                )
         help_command_list.set_footer(text="Page 2 of 2")
 
         counting_game_info = discord.Embed(
@@ -111,5 +124,29 @@ class general_commands(commands.Cog):
         await interaction.followup.send(embed=help_embed_list[0], view=view)
 
 
-async def setup(bot: CatCafeBot):
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context):
+        start_time = time.time()
+        try:
+            synced = await self.bot.tree.sync()
+            end_time = time.time()
+            duration = end_time - start_time
+            await ctx.send(
+                f"Synced {len(synced)} commands globally in {duration:.2f} seconds."
+            )
+        except discord.HTTPException as e:
+            await ctx.send(f"Error while syncing: {str(e)}")
+    
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        if isinstance(error, commands.NotOwner):
+            await ctx.send(
+                "You do not have permission to use this command. This command is reserved for the bot owner."
+            )
+        else:
+            raise error
+
+
+async def setup(bot: commands.Bot):
     await bot.add_cog(general_commands(bot))

@@ -1,6 +1,9 @@
 import discord, textwrap
 from discord.ext import commands
-from main import CatCafeBot, bot_embed_colour
+
+
+bot_embed_colour = discord.Colour.from_str("#5865f2")
+
 
 # nitro setup definition
 
@@ -99,7 +102,7 @@ class nitro_role_picker(discord.ui.View):
 
 
 class nitro_setup(commands.Cog):
-    def __init__(self, bot:CatCafeBot):
+    def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.bot_embed_colour = bot_embed_colour
     
@@ -130,5 +133,5 @@ class nitro_setup(commands.Cog):
             raise error
 
 
-async def setup(bot: CatCafeBot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(nitro_setup(bot))

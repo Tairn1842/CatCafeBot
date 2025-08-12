@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
 from openai import AsyncOpenAI
-from main import CatCafeBot
 
 
 load_dotenv()
@@ -45,7 +44,7 @@ async def ask_gpt_response(user_prompt):
 
 class ask_gpt(commands.Cog):
     
-    def __init__(self, bot: CatCafeBot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
     
     @app_commands.command(name="askgpt", description="Ask the AI a question.")
@@ -66,5 +65,5 @@ class ask_gpt(commands.Cog):
 
 
 
-async def setup(bot: CatCafeBot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(ask_gpt(bot))

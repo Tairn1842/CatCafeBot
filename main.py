@@ -67,7 +67,6 @@ class CatCafeBot(commands.Bot):
 
 bot = CatCafeBot()
 intents = discord.Intents.all()
-bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 @bot.event
 async def on_ready():

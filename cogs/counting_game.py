@@ -177,8 +177,9 @@ class counting_game(commands.Cog):
 
 
     # slash commands
+    counting_commands = app_commands.Group(name="counting", description="commands related to the counting game")
 
-    @app_commands.command(name="status", description="A full run-down of the bot's status.")
+    @counting_commands.command(name="status", description="A full run-down of the bot's status.")
     async def status(self, interaction: discord.Interaction):
         await interaction.response.defer()
         statusembed = discord.Embed(
@@ -197,7 +198,7 @@ class counting_game(commands.Cog):
         await interaction.followup.send(embed=statusembed)
 
 
-    @app_commands.command(name="record", description="Displays this server's counting record.")
+    @counting_commands.command(name="record", description="Displays this server's counting record.")
     async def record(self, interaction: discord.Interaction):
         await interaction.response.defer()
         recordmebed = discord.Embed(
@@ -209,7 +210,7 @@ class counting_game(commands.Cog):
         await interaction.followup.send(embed=recordmebed)
 
 
-    @app_commands.command(
+    @counting_commands.command(
         name="next",
         description="Tells you what the next number is. Because apparently reading is hard.",
     )
@@ -224,7 +225,7 @@ class counting_game(commands.Cog):
         await interaction.followup.send(embed=nextembed)
 
 
-    @app_commands.command(
+    @counting_commands.command(
         name="streak", description="Displays the current and record counting streaks."
     )
     async def streakinfo(self, interaction: discord.Interaction):

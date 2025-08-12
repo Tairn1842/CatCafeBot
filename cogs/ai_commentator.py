@@ -2,7 +2,6 @@ from openai import AsyncOpenAI
 import discord, textwrap, re, os
 from discord.ext import commands
 from dotenv import load_dotenv
-from main import CatCafeBot
 
 
 # model definition
@@ -31,7 +30,7 @@ async def openai_response(user_prompt):
 
 class ai_handler(commands.Cog):
 
-    def __init__(self, bot: CatCafeBot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
         self.pattern = re.compile(
@@ -75,5 +74,5 @@ class ai_handler(commands.Cog):
                 )
                 
 
-async def setup(bot: CatCafeBot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(ai_handler(bot))
