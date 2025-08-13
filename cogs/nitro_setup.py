@@ -2,9 +2,6 @@ import discord, textwrap
 from discord.ext import commands
 
 
-bot_embed_colour = discord.Colour.from_str("#5865f2")
-
-
 # nitro setup definition
 
 
@@ -104,7 +101,6 @@ class nitro_role_picker(discord.ui.View):
 class nitro_setup(commands.Cog):
     def __init__(self, bot:commands.Bot):
         self.bot = bot
-        self.bot_embed_colour = bot_embed_colour
     
     @commands.command()
     @commands.is_owner()
@@ -115,7 +111,7 @@ class nitro_setup(commands.Cog):
             title=textwrap.dedent("""Congratulations! If you're here, you've either boosted the server or are level 100 or higher.
             \nAs a reward for your contribution, you can pick a colour role from those listed below:"""),
             description=mentions,
-            colour=bot_embed_colour,
+            colour=discord.Colour.from_str("#5865f2"),
         )
         await ctx.send(
             embed=nitro_embed,

@@ -3,7 +3,6 @@ from discord.ext import commands
 from discord import app_commands
 from .ai_commentator import openai_response
 
-bot_embed_colour = discord.Colour.from_str("#5865f2")
 
 class counting_game(commands.Cog):
     
@@ -14,7 +13,6 @@ class counting_game(commands.Cog):
     
     def __init__(self, bot:commands.Bot):
         self.bot = bot
-        self.bot_embed_colour = bot_embed_colour
         self.bot.load_count()
     
     @commands.Cog.listener()
@@ -182,6 +180,7 @@ class counting_game(commands.Cog):
     @counting_commands.command(name="status", description="A full run-down of the bot's status.")
     async def status(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         statusembed = discord.Embed(
             title="All bot stats:",
             description=textwrap.dedent(f"""Channel: <#{self.bot.counting_channel}>\n
@@ -193,7 +192,7 @@ class counting_game(commands.Cog):
             Record Holder: <@{self.bot.record_holder}>\n
             Current Streak: {self.bot.current_streak}\n
             Record Streak: {self.bot.record_streak}"""),
-            colour=self.bot_embed_colour,
+            colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=statusembed)
 
@@ -201,11 +200,12 @@ class counting_game(commands.Cog):
     @counting_commands.command(name="record", description="Displays this server's counting record.")
     async def record(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         recordmebed = discord.Embed(
             title="Counting Record:",
             description=textwrap.dedent(f"""This server's counting record is __**{self.bot.counting_record}**__.
             \nIt was achieved by <@{self.bot.record_holder}>."""),
-            colour=self.bot_embed_colour,
+            colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=recordmebed)
 
@@ -216,11 +216,12 @@ class counting_game(commands.Cog):
     )
     async def nextnumber(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         nextembed = discord.Embed(
             title="Next Number:",
             description=textwrap.dedent(f"""The next number is __**{self.bot.next_number}**__.
             \nThe last person to count was <@{self.bot.last_user_id}>."""),
-            colour=self.bot_embed_colour,
+            colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=nextembed)
 
@@ -230,11 +231,12 @@ class counting_game(commands.Cog):
     )
     async def streakinfo(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         streakembed = discord.Embed(
             title="Streak Information:",
             description=textwrap.dedent(f"""The current streak is __**{self.bot.current_streak}**__.
             \nThe streak record is __**{self.bot.record_streak}**__."""),
-            colour=self.bot_embed_colour,
+            colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=streakembed)
     

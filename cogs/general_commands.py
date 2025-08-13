@@ -3,9 +3,6 @@ from discord.ext import commands
 from discord import app_commands
 
 
-bot_embed_colour = discord.Colour.from_str("#5865f2")
-
-
 class HelpPage(discord.ui.View):
     def __init__(self, user, embeds):
         super().__init__(timeout=None) 
@@ -57,7 +54,6 @@ class HelpPage(discord.ui.View):
 class general_commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.bot_embed_colour = bot_embed_colour
     
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -72,6 +68,7 @@ class general_commands(commands.Cog):
     @app_commands.command(name="ping", description="How quickly is the bot responding?")
     async def botping(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         latency = self.bot.latency * 1000
         pingembed = discord.Embed(
             title="Pong",
@@ -87,6 +84,7 @@ class general_commands(commands.Cog):
     @app_commands.command(name="help", description="How does the bot work?")
     async def helpmessage(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        bot_embed_colour = interaction.user.colour
         help_command_list = discord.Embed(
             title="Help Menu:",
             description="A list of this bot's commands. They're all slash commands, there is no prefix.",

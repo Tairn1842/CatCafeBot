@@ -53,7 +53,10 @@ class ask_gpt(commands.Cog):
         try:
             await interaction.response.defer()
             bot_response = await ask_gpt_response(message)
-            await interaction.followup.send(bot_response)
+            embed_colour = interaction.user.colour
+            ask_gpt_embed = discord.Embed(title=message,
+                description=bot_response, colour=embed_colour)
+            await interaction.followup.send(embed=ask_gpt_embed)
         except Exception as e:
             print(f"Error generating response: {e}")
             await interaction.followup.send(

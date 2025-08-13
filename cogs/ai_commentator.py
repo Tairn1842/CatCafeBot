@@ -20,7 +20,7 @@ You must ensure your quips are varied and non-repetitive, maintaining your perso
 
 async def openai_response(user_prompt):
     response = await openai_client.chat.completions.create(
-            model="gpt-5",
+            model="gpt-4.1",
             messages=[
                 {"role":"system", "content": system_message},
                 {"role":"user","content":user_prompt}
