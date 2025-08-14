@@ -84,18 +84,16 @@ class counting_game(commands.Cog):
                 num_digits[i] + 1 == num_digits[i + 1]
                 for i in range(len(num_digits) - 1)
             ):
-                checker_response.append(textwrap.dedent(
-                """Hey, that's a perfect sequence[!]
-                (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
+                checker_response.append(
+                "Hey, that's a perfect sequence[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"
                     )
-                )
+
             # Palindrome Checker
             if str(counted_number) == str(counted_number)[::-1]:
-                checker_response.append(textwrap.dedent(
-                """Hey, that's a palindrome[!]
-                (https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"""
+                checker_response.append(
+                "Hey, that's a palindrome[!](https://tenor.com/view/thats-it-yes-thats-it-that-right-there-omg-that-thats-what-i-mean-gif-17579879)"
                     )
-                )
+
             # SixtyNice Checker
             if "69" in str(counted_number) and "69" not in str(counted_number - 1):
                 checker_response.append(
