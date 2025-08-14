@@ -8,7 +8,9 @@ from openai import AsyncOpenAI
 load_dotenv()
 
 
-ask_gpt_client = AsyncOpenAI(api_key=os.getenv("openai_token"))
+ask_gpt_client = AsyncOpenAI(
+    base_url="https://api.fireworks.ai/inference/v1", 
+    api_key=os.getenv("fireworks_token"))
 system_message = """
 You are a chatbot assistant of supreme intellect and capability. 
 Your primary objective is to deliver masterful, insightful responses with efficiency and clarity. 
@@ -35,7 +37,7 @@ async def ask_gpt_response(user_prompt):
     messages.extend(history)
     messages.append({"role": "user", "content": user_prompt})
     response  = await ask_gpt_client.chat.completions.create(
-        model = "gpt-5-mini",
+        model = "accounts/fireworks/models/qwen3-235b-a22b-instruct-2507",
         messages=messages)
     ai_response = response.choices[0].message.content.strip()
     history.append({"role": "user", "content": user_prompt})
