@@ -10,7 +10,7 @@ load_dotenv()
 
 ask_gpt_client = AsyncOpenAI(
     base_url="https://api.fireworks.ai/inference/v1", 
-    api_key=os.getenv("fireworks_token"))
+    api_key=os.getenv("fireworksai_api_key"))
 system_message = """
 Engage in conversation with the users and answer their questions in **under six sentences**. 
 Respond in a cheerful and engaging tone and with informative and conscise answers.
