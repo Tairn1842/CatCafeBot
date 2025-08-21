@@ -10,7 +10,7 @@ load_dotenv()
 
 ask_gpt_client = AsyncOpenAI(
     base_url="https://api.fireworks.ai/inference/v1", 
-    api_key=os.getenv("fireworks_token"))
+    api_key=os.getenv("fireworksai_api_key"))
 system_message = """
 Engage in conversation with the users and answer their questions in **under six sentences**. 
 Respond in a cheerful and engaging tone and with informative and conscise answers.
@@ -33,7 +33,7 @@ async def ask_gpt_response(user_prompt):
     messages.extend(history)
     messages.append({"role": "user", "content": user_prompt})
     response  = await ask_gpt_client.chat.completions.create(
-        model = "accounts/fireworks/models/deepseek-r1-0528",
+        model = "accounts/fireworks/models/deepseek-r1",
         messages=messages)
     ai_response = response.choices[0].message.content
     clean = re.sub(r"<think>.*?</think>", "", ai_response, flags=re.DOTALL).strip()

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # model definition
 
 load_dotenv()
-openai_client = AsyncOpenAI(api_key=os.getenv("openai_token"))
+commentator_client = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
 
 system_message = """
 You are a chatbot designed solely to comment on user interactions. 
@@ -19,16 +19,14 @@ You must ensure your quips are varied and non-repetitive, maintaining your perso
 """
 
 async def openai_response(user_prompt):
-    response = await openai_client.chat.completions.create(
-            model="o3",
-            messages=[
-                {"role":"system", "content": system_message},
-                {"role":"user","content":user_prompt}
-            ],
-        )
-    ai_response =  response.choices[0].message.content
-    clean = re.sub(r"<think>.*?</think>", "", ai_response, flags=re.DOTALL).strip()
-    return clean
+    response = await commentator_client.responses.create(
+        model="o3", 
+        instructions=system_message, 
+        input=user_prompt, 
+        reasoning={"effort":"high","summary":"detailed"}, 
+        service_tier="flex", 
+        store=False)
+    return response.output_text.strip()
 
 class ai_handler(commands.Cog):
 

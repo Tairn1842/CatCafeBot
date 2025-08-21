@@ -75,4 +75,4 @@ async def on_ready():
     bot.add_view(nitro_role_picker())
 
 if __name__ == "__main__":
-    bot.run(os.getenv("bot_token"))
+    bot.run(os.getenv("cat_cafe_bot_token"))
