@@ -67,3 +67,43 @@ class ask_gpt(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ask_gpt(bot))
+
+
+
+"""
+# when fireworks tokens run out
+
+ask_gpt_client = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
+ask_gpt_model = "o4-mini"
+
+history = []
+
+async def ask_gpt_response(user, message):
+    global history
+    
+    if len(history)>20:
+        history = history[2:]
+    
+    messages = []
+    if history:
+        messages.extend(history)
+        
+    messages.append({"role":"user", "content":f"user:{user}\nmessage:{message}"})
+    model_response = await ask_gpt_client.responses.create(
+        model=ask_gpt_model,
+        instructions=system_message,
+        reasoning={"effort":"low"},
+        input=messages,
+        tools=[{"type":"web_search_preview"}],
+        store=False
+    )
+    final_response = model_response.output_text.strip()
+    history.extend([
+        {"role":"user", "content":f"user:{user}\nmessage:{message}"},
+        {"role":"assistant", "content":final_response}
+    ])
+    return final_response
+    
+    # in the slash command function:
+    bot_response = await ask_gpt_response(interaction.user.globalname, message)
+"""

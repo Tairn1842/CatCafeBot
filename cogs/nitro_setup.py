@@ -34,12 +34,10 @@ role_list = {
 class nitro_role_list(discord.ui.Select):
 
     def __init__(self):
-        options = [discord.SelectOption(label="🚫 No Color", value="none")] + [
-            discord.SelectOption(label=label, value=label) for label in role_list
-        ]
+        options = [discord.SelectOption(label=label, value=label) for label in role_list]
         super().__init__(
-            placeholder="Choose your role...",
-            min_values=1,
+            placeholder="Select a role to add, or deselect one to remove",
+            min_values=0,
             max_values=1,
             options=options,
             custom_id="role_select",
@@ -48,24 +46,32 @@ class nitro_role_list(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         member = interaction.user
         guild = interaction.guild
-        selected_key = self.values[0]
 
-        if selected_key == "none":
+        if not self.values:
             to_remove = [
-                guild.get_role(rid)
-                for rid in role_list.values()
-                if guild.get_role(rid) in member.roles
+                r for r in (guild.get_role(rid) for rid in role_list.values())
+                if r and r in member.roles
             ]
-            if to_remove:
-                await member.remove_roles(*to_remove, reason="Cleared color roles")
-            await interaction.response.send_message(
-                "✅ Color roles cleared.", ephemeral=True
-            )
-            return
+            if not to_remove:
+                return await interaction.response.send_message(
+                    "ℹ️ You don’t currently have a colour role.", ephemeral=True
+                )
+            try:
+                await member.remove_roles(*to_remove, reason="Colour cleared")
+                return await interaction.response.send_message(
+                    "✅ Cleared your colour role.", ephemeral=True
+                )
+            except discord.Forbidden:
+                return await interaction.response.send_message(
+                    "❌ Missing Permissions. Please contact staff.", ephemeral=True
+                )
+
+        selected_key = self.values[0]
 
         target = guild.get_role(role_list[selected_key])
         if not target:
             return await interaction.response.send_message("❌ Role not found.")
+
         to_remove = [
             guild.get_role(rid)
             for cid, rid in role_list.items()
@@ -75,12 +81,14 @@ class nitro_role_list(discord.ui.Select):
         try:
             if to_remove:
                 await member.remove_roles(*to_remove, reason="Colour Swap")
+
             if target in member.roles:
                 await member.remove_roles(target, reason="Colour toggled off.")
                 await interaction.response.send_message(
                     f"✅ Successfully removed role: **__{target.name}__**",
                     ephemeral=True,
                 )
+
             else:
                 await member.add_roles(target, reason="Colour role added.")
                 await interaction.response.send_message(
