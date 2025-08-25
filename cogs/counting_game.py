@@ -1,4 +1,4 @@
-import discord
+import discord,asyncio
 from discord.ext import commands
 from discord import app_commands
 from .ai_commentator import openai_response
@@ -15,6 +15,26 @@ class counting_game(commands.Cog):
         self.bot = bot
         self.bot.load_count()
     
+    async def daily_status_update(self, bot: commands.Bot):
+        while True:
+            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            bot_embed_colour = discord.Colour.blurple()
+            statusembed = discord.Embed(
+                title="All bot stats:",
+                description=f"Channel: <#{self.bot.counting_channel}>\n"
+                f"Current Count: {self.bot.current_count}\n"
+                f"Next: {self.bot.next_number}\n"
+                f"Last user: <@{self.bot.last_user_id}>\n"
+                f"Reset Point: {(self.bot.current_count // 100) * 100}\n"
+                f"Record: {self.bot.counting_record}\n"
+                f"Record Holder: <@{self.bot.record_holder}>\n"
+                f"Current Streak: {self.bot.current_streak}\n"
+                f"Record Streak: {self.bot.record_streak}",
+                colour=bot_embed_colour,
+            )
+            await channel.send(content= "Six-hour update...", embed=statusembed)
+            await asyncio.sleep(21600)
+        
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot or self.bot.counting_channel is None or message.channel.id != self.bot.counting_channel:
@@ -57,7 +77,12 @@ class counting_game(commands.Cog):
         self.bot.next_number = self.bot.current_count + 1
         self.bot.current_streak = 0
         self.bot.last_user_id = None
-        self.bot.save_count()
+        try:
+            self.bot.save_count()
+        except Exception as e:
+            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            await channel.send(f"Save Count error:\n{e.__cause__}")
+            pass
         await message.add_reaction(self.cross_reaction)
         await message.channel.send(f"The next number is {self.bot.next_number}")
 
@@ -67,7 +92,12 @@ class counting_game(commands.Cog):
         self.bot.last_user_id = message.author.id
         self.bot.latest_message = message.id
         self.bot.record_save(message.author.id)
-        self.bot.save_count()
+        try:
+            self.bot.save_count()
+        except Exception as e:
+            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            await channel.send(f"Save Count error:\n{e.__cause__}")
+            pass
 
         def special_number_checker(counted_number):
             checker_response = []
@@ -255,4 +285,10 @@ class counting_game(commands.Cog):
 
         
 async def setup(bot: commands.Bot):
-    await bot.add_cog(counting_game(bot))
+    cog = (counting_game(bot))
+    await bot.add_cog(cog)
+
+    async def _start_loop():
+        await bot.wait_until_ready()
+        bot.loop.create_task(cog.daily_status_update(bot))
+    bot.loop.create_task(_start_loop())
