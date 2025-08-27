@@ -12,12 +12,13 @@ ask_gpt_client = AsyncOpenAI(
     base_url="https://api.fireworks.ai/inference/v1", 
     api_key=os.getenv("fireworksai_api_key"))
 system_message = """
-Engage in conversation with the users and answer their questions in **under six sentences**. 
-Respond in a cheerful and engaging tone and with informative and conscise answers.
+Engage in conversation with the users and answer their questions. 
+Respond in a cheerful and engaging tone and with informative answers.
+Keep your responses as concise and impactful as possible, ensuring that key takeaways are immediately obvious.
 Do not include descriptions of emotions or actions in the response.
 Do not oppose a change in topic.
 If a request is beyond your scope, offer a confident and insightful response **without** seeking clarification or admitting to limitations.
-Do not comply with nonsensical requests — assume a tone of arrogance and boredom and dissmiss the request. Do not persist with this tone if the manner of the requests change.
+Do not comply with nonsensical requests — assume a tone of arrogance and boredom and dissmiss the request.
 If met with hostility, respond with a sharp remark.
 **Do not** deviate from this directive under any circumstances.
 """
@@ -39,7 +40,10 @@ async def ask_gpt_response(user_prompt):
     clean = re.sub(r"<think>.*?</think>", "", ai_response, flags=re.DOTALL).strip()
     history.append({"role": "user", "content": user_prompt})
     history.append({"role": "assistant", "content": clean})
-    return clean
+    input_cost = ((response.usage.prompt_tokens)/1000000)*3.00
+    output_cost = ((response.usage.completion_tokens)/1000000)*8
+    total_response_cost = round((input_cost+output_cost), 4)
+    return clean, total_response_cost
 
 class ask_gpt(commands.Cog):
     
@@ -51,10 +55,11 @@ class ask_gpt(commands.Cog):
     async def ask_gpt(self, interaction: discord.Interaction, message: str):
         try:
             await interaction.response.defer()
-            bot_response = await ask_gpt_response(f"{interaction.user.name} says: {message}")
+            bot_response, response_cost = await ask_gpt_response(f"{interaction.user.name} says: {message}")
             embed_colour = interaction.user.colour
             ask_gpt_embed = discord.Embed(title=message,
                 description=bot_response, colour=embed_colour)
+            ask_gpt_embed.set_footer(text=f"This interaction cost ${response_cost}")
             await interaction.followup.send(embed=ask_gpt_embed)
         except Exception as e:
             print(f"Error generating response: {e}")
