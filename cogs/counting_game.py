@@ -17,6 +17,7 @@ class counting_game(commands.Cog):
     
     async def daily_status_update(self, bot: commands.Bot):
         while True:
+            await asyncio.sleep(21600)
             channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
             bot_embed_colour = discord.Colour.blurple()
             statusembed = discord.Embed(
@@ -33,7 +34,6 @@ class counting_game(commands.Cog):
                 colour=bot_embed_colour,
             )
             await channel.send(content= "Six-hour update...", embed=statusembed)
-            await asyncio.sleep(21600)
         
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
