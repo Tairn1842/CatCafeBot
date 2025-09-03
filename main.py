@@ -73,6 +73,15 @@ async def on_ready():
     print(f"Logged in as {bot.user}!")
     from cogs.nitro_setup import nitro_role_picker
     bot.add_view(nitro_role_picker())
+    print("Nitro picker view initialised.")
+    from cogs.verification import user_verification_button
+    bot.add_view(user_verification_button())
+    print("Verification view initialised.")
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} commands globally.")
+    except discord.HTTPException as e:
+        print(f"Error syncing commands: {str(e)}")
 
 if __name__ == "__main__":
     bot.run(os.getenv("cat_cafe_bot_token"))

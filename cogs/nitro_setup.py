@@ -138,4 +138,5 @@ class nitro_setup(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(nitro_setup(bot))
+    cog = (nitro_setup(bot))
+    await bot.add_cog(cog)

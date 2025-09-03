@@ -86,4 +86,5 @@ class ask_gpt(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(ask_gpt(bot))
+    cog = (ask_gpt(bot))
+    await bot.add_cog(cog)

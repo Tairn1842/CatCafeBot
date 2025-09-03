@@ -147,4 +147,5 @@ class general_commands(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(general_commands(bot))
+    cog = (general_commands(bot))
+    await bot.add_cog(cog)

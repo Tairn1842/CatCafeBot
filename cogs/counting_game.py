@@ -287,6 +287,10 @@ class counting_game(commands.Cog):
 async def setup(bot: commands.Bot):
     cog = (counting_game(bot))
     await bot.add_cog(cog)
+    try:
+        await bot.tree.add_command(cog.counting_commands)
+    except app_commands.CommandAlreadyRegistered:
+        pass
 
     async def _start_loop():
         await bot.wait_until_ready()

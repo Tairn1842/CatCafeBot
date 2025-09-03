@@ -74,4 +74,5 @@ class ai_handler(commands.Cog):
                 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(ai_handler(bot))
+   cog = (ai_handler(bot))
+   await bot.add_cog(cog)
