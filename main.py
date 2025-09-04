@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 import json, os
 from dotenv import load_dotenv
 
@@ -65,8 +66,41 @@ class CatCafeBot(commands.Bot):
                 await self.load_extension(f"cogs.{filename[:-3]}")
                 print(f"Loaded cog: {filename}")
 
+    async def on_message(self, message: discord.Message):
+        if isinstance(message.channel, discord.DMChannel):
+            if not message.author.bot:
+                await message.reply("You can't use the bot here.", delete_after=5)
+                pass
+        else:
+            await bot.process_commands(message)
+        
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        return
+
 bot = CatCafeBot()
 intents = discord.Intents.all()
+
+
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    if isinstance(error, app_commands.MissingAnyRole):
+        message = "You can't execute this command."
+    elif isinstance(error, app_commands.CommandOnCooldown):
+        message = f"This command is on cooldown! Try again after {error.retry_after} seconds."
+    elif isinstance(error, app_commands.CheckFailure):
+        message = "You do not have permission to use this command."
+    elif isinstance(error, app_commands.NoPrivateMessage):
+        message  = "You can't use this bot in DMs!"
+    else:
+        message = f"An unexpected error occured. Please alert the bot owner.\n{error}"
+        error_logging_channel = bot.get_channel(1309124072738787378) or await bot.fetch_channel(1309124072738787378)
+        await error_logging_channel.send(f"Error executing {interaction.command.name}:\n{error}\nUser:{interaction.user.name}")
+
+    if interaction.response.is_done():
+        await interaction.followup.send(message, ephemeral=True)
+    else:
+        await interaction.response.send_message(message, ephemeral=True)
+
 
 @bot.event
 async def on_ready():
@@ -78,6 +112,7 @@ async def on_ready():
     bot.add_view(user_verification_button())
     print("Verification view initialised.")
     try:
+        bot.tree.allowed_contexts = app_commands.AppCommandContext(guild=True, private_channel=False, dm_channel=False)
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} commands globally.")
     except discord.HTTPException as e:

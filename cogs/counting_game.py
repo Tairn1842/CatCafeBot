@@ -51,7 +51,8 @@ class counting_game(commands.Cog):
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
-                print(f"Error generating response: {e}")
+                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                await error_reporting.send(content=f"consecutive count response error:\n{e}")
                 await message.reply("What are you incapable of, following the rules, or reading?")
             await self.reset_count_handler(message)
             return
@@ -63,7 +64,8 @@ class counting_game(commands.Cog):
                     )
                 await message.reply(not_consecutive_response)
             except Exception as e:
-                print(f"Error generating response: {e}")
+                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                await error_reporting.send(content=f"wrong number response error:\n{e}")
                 await message.reply(
                     "It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."
                     )
@@ -80,8 +82,8 @@ class counting_game(commands.Cog):
         try:
             self.bot.save_count()
         except Exception as e:
-            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
-            await channel.send(f"Save Count error:\n{e.__cause__}")
+            error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            await error_reporting.send(content=f"save_count error:\n{e}")
             pass
         await message.add_reaction(self.cross_reaction)
         await message.channel.send(f"The next number is {self.bot.next_number}")
@@ -95,8 +97,8 @@ class counting_game(commands.Cog):
         try:
             self.bot.save_count()
         except Exception as e:
-            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
-            await channel.send(f"Save Count error:\n{e.__cause__}")
+            error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            await error_reporting.send(content=f"save_count error:\n{e}")
             pass
 
         def special_number_checker(counted_number):
@@ -164,7 +166,8 @@ class counting_game(commands.Cog):
                     f"The next number is {self.bot.next_number}.")
                     )
             except Exception as e:
-                print(f"Error generating response: {e}")
+                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                await error_reporting.send(content=f"edit response error:\n{e}")
                 await before.channel.send(
                     f"{before.author.mention} has edited their message, the sneaky devil!\n"
                     f"The number was {self.bot.current_count}. The next number is {self.bot.next_number}."
@@ -187,7 +190,8 @@ class counting_game(commands.Cog):
                     f"The next number is {self.bot.next_number}."
                     )
             except Exception as e:
-                print(f"Error generating response: {e}")
+                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                await error_reporting.send(content=f"delete response error:\n{e}")
                 await message.channel.send(
                     f"{message.author.mention} has deleted their message, the sneaky devil!\n"
                     f"Their number was {self.bot.current_count}. The next number is {self.bot.next_number}."

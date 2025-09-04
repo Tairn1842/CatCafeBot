@@ -78,7 +78,7 @@ class ask_gpt(commands.Cog):
             await interaction.followup.send(embed=ask_gpt_embed)
         except Exception as e:
             error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
-            await error_reporting.send(content=f"Error generating response:\n{e}")
+            await error_reporting.send(content=f"ask_gpt error:\n{e}")
             await interaction.followup.send(
                 "I do not have the time or patience to deal with this at the moment.\n"
                 "Try again later, or ask someone else."

@@ -41,6 +41,7 @@ class nitro_role_list(discord.ui.Select):
             max_values=1,
             options=options,
             custom_id="role_select",
+            required=False
         )
 
     async def callback(self, interaction: discord.Interaction):

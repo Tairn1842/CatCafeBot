@@ -65,7 +65,8 @@ class ai_handler(commands.Cog):
             )
                 await message.reply(rude_response)
             except Exception as e:
-                print(f"Error generating response: {e}")
+                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                await error_reporting.send(content=f"ai_commentator error:\n{e}")
                 await message.reply(
                 "Look at you disrespecting a bot. A few lines of code that cannot think for itself.\n" 
                 "How proud of yourself you must be.\n" 
