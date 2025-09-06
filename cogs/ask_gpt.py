@@ -1,4 +1,4 @@
-import discord, os
+import discord, os, textwrap
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
@@ -72,7 +72,11 @@ class ask_gpt(commands.Cog):
             await interaction.response.defer()
             bot_response, response_cost = await ask_gpt_response(interaction.user.global_name, message)
             embed_colour = interaction.user.colour
-            ask_gpt_embed = discord.Embed(title=message,
+            if len(message) > 256:
+                embed_title = textwrap.shorten(message, width=253, placeholder="...", drop_whitespace=False)
+            else:
+                embed_title = message
+            ask_gpt_embed = discord.Embed(title=embed_title,
                 description=bot_response, colour=embed_colour)
             ask_gpt_embed.set_footer(text=f"This interaction cost ${response_cost}")
             await interaction.followup.send(embed=ask_gpt_embed)
