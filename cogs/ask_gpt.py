@@ -71,13 +71,12 @@ class ask_gpt(commands.Cog):
         try:
             await interaction.response.defer()
             bot_response, response_cost = await ask_gpt_response(interaction.user.global_name, message)
-            embed_colour = interaction.user.colour
-            if len(message) > 256:
-                embed_title = textwrap.shorten(message, width=253, placeholder="...", drop_whitespace=False)
-            else:
-                embed_title = message
-            ask_gpt_embed = discord.Embed(title=embed_title,
-                description=bot_response, colour=embed_colour)
+            ask_gpt_embed = discord.Embed(title=f"{interaction.user.display_name} asks:",
+                description=message, 
+                colour=interaction.user.colour)
+            ask_gpt_embed.add_field(name="Model Response:",
+                value=bot_response,
+                inline=False)
             ask_gpt_embed.set_footer(text=f"This interaction cost ${response_cost}")
             await interaction.followup.send(embed=ask_gpt_embed)
         except Exception as e:
