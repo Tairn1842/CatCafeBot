@@ -15,12 +15,10 @@ class counting_game(commands.Cog):
         self.bot = bot
         self.bot.load_count()
     
-    async def daily_status_update(self, bot: commands.Bot):
-        while True:
-            await asyncio.sleep(21600)
+    async def status_update(self, bot: commands.Bot):
             channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
             bot_embed_colour = discord.Colour.blurple()
-            statusembed = discord.Embed(
+            status_embed = discord.Embed(
                 title="All bot stats:",
                 description=f"Channel: <#{self.bot.counting_channel}>\n"
                 f"Current Count: {self.bot.current_count}\n"
@@ -33,7 +31,7 @@ class counting_game(commands.Cog):
                 f"Record Streak: {self.bot.record_streak}",
                 colour=bot_embed_colour,
             )
-            await channel.send(content= "Six-hour update...", embed=statusembed)
+            await channel.send(content= "Current status:", embed=status_embed)
         
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -84,6 +82,7 @@ class counting_game(commands.Cog):
         except Exception as e:
             error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
             await error_reporting.send(content=f"save_count error:\n{e}")
+            self.status_update()
             pass
         await message.add_reaction(self.cross_reaction)
         await message.channel.send(f"The next number is {self.bot.next_number}")
@@ -99,6 +98,7 @@ class counting_game(commands.Cog):
         except Exception as e:
             error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
             await error_reporting.send(content=f"save_count error:\n{e}")
+            self.status_update()
             pass
 
         def special_number_checker(counted_number):
@@ -295,8 +295,3 @@ async def setup(bot: commands.Bot):
         await bot.tree.add_command(cog.counting_commands)
     except app_commands.CommandAlreadyRegistered:
         pass
-
-    async def _start_loop():
-        await bot.wait_until_ready()
-        bot.loop.create_task(cog.daily_status_update(bot))
-    bot.loop.create_task(_start_loop())
