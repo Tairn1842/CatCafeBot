@@ -7,6 +7,9 @@ class user_verification_button(discord.ui.View):
     
     @discord.ui.button(label="Get Verified!", style=discord.ButtonStyle.green, custom_id="verify:get_verified")
     async def on_verification(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cross_reaction = "<a:error:1414890229872988311>"
+        tick_reaction = "<a:tick:1414889202814025790>"
+        heart_reaction = "<:cat_heart:1414892517509562389>"
         guild = interaction.guild
         water = 1200520588570144779
         water_role = guild.get_role(water) or await guild.fetch_role(water)
@@ -14,23 +17,23 @@ class user_verification_button(discord.ui.View):
         unverified_role = guild.get_role(unverified) or await guild.fetch_role(unverified)
         member = interaction.user
         if len(member.roles) <= 1:
-            await interaction.response.send_message("❌ You do not appear to have any roles. Please contact staff by opening a ticket.", 
+            await interaction.response.send_message(f"{cross_reaction} You do not appear to have any roles. Please contact staff by opening a ticket.", 
                 ephemeral=True)
             return
         if unverified_role in member.roles:
             if water_role in member.roles:
                 await interaction.user.remove_roles(unverified_role, reason="Successfully verified")
-                await interaction.response.send_message("✅ You have been successfully verified!\n"
-                "Have a great time! 💖", ephemeral=True)
+                await interaction.response.send_message(f"{tick_reaction} You have been successfully verified!\n"
+                f"Have a great time! {heart_reaction}", ephemeral=True)
                 return
             else:
                 await interaction.user.add_roles(water_role, reason="Successfully verified")
                 await interaction.user.remove_roles(unverified_role, reason="Successfully verified")
-                await interaction.response.send_message("✅ You have been successfully verified!\n"
-                    "Have a great time! 💖", ephemeral=True)
+                await interaction.response.send_message(f"{tick_reaction} You have been successfully verified!\n"
+                    f"Have a great time! {heart_reaction}", ephemeral=True)
                 return
         else:
-            await interaction.response.send_message("❌ You're already verified. Shoo!", ephemeral=True)
+            await interaction.response.send_message(f"{cross_reaction} You're already verified. Shoo!", ephemeral=True)
             return
 
 

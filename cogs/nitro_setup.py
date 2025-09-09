@@ -45,6 +45,8 @@ class nitro_role_list(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
+        cross_reaction = "<a:error:1414890229872988311>"
+        tick_reaction = "<a:tick:1414889202814025790>"
         member = interaction.user
         guild = interaction.guild
 
@@ -55,16 +57,16 @@ class nitro_role_list(discord.ui.Select):
             ]
             if not to_remove:
                 return await interaction.response.send_message(
-                    "ℹ️ You don’t currently have a colour role.", ephemeral=True
+                    f"{cross_reaction} You don’t currently have a colour role.", ephemeral=True
                 )
             try:
                 await member.remove_roles(*to_remove, reason="Colour cleared")
                 return await interaction.response.send_message(
-                    "✅ Cleared your colour role.", ephemeral=True
+                    f"{tick_reaction} Cleared your colour role.", ephemeral=True
                 )
             except discord.Forbidden:
                 return await interaction.response.send_message(
-                    "❌ Missing Permissions. Please contact staff.", ephemeral=True
+                    f"{cross_reaction} Missing Permissions. Please contact staff.", ephemeral=True
                 )
 
         selected_key = self.values[0]
@@ -86,18 +88,18 @@ class nitro_role_list(discord.ui.Select):
             if target in member.roles:
                 await member.remove_roles(target, reason="Colour toggled off.")
                 await interaction.response.send_message(
-                    f"✅ Successfully removed role: **__{target.name}__**",
+                    f"{tick_reaction} Successfully removed role: **__{target.name}__**",
                     ephemeral=True,
                 )
 
             else:
                 await member.add_roles(target, reason="Colour role added.")
                 await interaction.response.send_message(
-                    f"✅ Successfully added role: **__{target.name}__**", ephemeral=True
+                    f"{tick_reaction} Successfully added role: **__{target.name}__**", ephemeral=True
                 )
         except discord.Forbidden:
             await interaction.response.send_message(
-                "❌ Missing Permissions. Please contact staff.", ephemeral=True
+                f"{cross_reaction} Missing Permissions. Please contact staff.", ephemeral=True
             )
 
 

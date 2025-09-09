@@ -20,11 +20,11 @@ You must ensure your quips are varied and non-repetitive, maintaining your perso
 
 async def openai_response(user_prompt):
     response = await commentator_client.responses.create(
-        model="o3", 
+        model="o4-mini", 
         instructions=system_message, 
         input=user_prompt, 
         reasoning={"effort":"high","summary":"detailed"}, 
-        service_tier="flex", 
+        service_tier="priority", 
         store=False)
     return response.output_text.strip()
 
@@ -33,17 +33,8 @@ class ai_handler(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        self.pattern = re.compile(
-            r"(?i)("
-            r"\b(?:stupid|silly|dumb\w*|idiot(ic)?)\b(?:[\s\W]+\w+){0,5}[\s\W]+\b(?:bot|bots|ai|assistant)\b|"
-            r"\b(?:bot|bots|ai|assistant)\b(?:[\s\W]+\w+){0,5}[\s\W]+\b(?:stupid|silly|dumb\w*|idiot(ic)?)\b|"
-            r"\b(?:fuck\s+you|screw\s+you|fuck\s+off|screw\s+off)\b(?:[\s\W]+\w+){0,5}[\s\W]*\b(?:bot|bots|ai|assistant)\b|"
-            r"\bshut\s+up\b(?:[\s\W]+\w+){0,3}?[\s\W]*\b(?:bot|bots|ai|assistant)\b"
-            r")"
-        )
-
         self.insult_keywords = {
-            "stupid", "silly", "idiot", "idiotic", "dumb", "dumbass", "shut", "fuck you", "screw you", "shut up"
+            "stupid", "silly", "idiot", "idiotic", "dumb", "dumbass", "shut", "fuck you", "screw you", "shut up", "moron", "moronic", "fuck off"
         }
 
     @commands.Cog.listener()
@@ -52,9 +43,9 @@ class ai_handler(commands.Cog):
             return
 
         content_lower = message.content.lower()
-        is_insulting_bots = bool(self.pattern.search(message.content))
         bot_mentions = [m for m in message.mentions if m.bot]
-        if not is_insulting_bots and bot_mentions:
+        is_insulting_bots = False
+        if bot_mentions:
             if any(keyword in content_lower for keyword in self.insult_keywords):
                 is_insulting_bots = True
 

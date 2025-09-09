@@ -6,9 +6,9 @@ from .ai_commentator import openai_response
 
 class counting_game(commands.Cog):
     
-    cross_reaction = "<a:cross:1329494914945515593>"
-    tick_reaction = "<a:tick:1329494885279203450>"
-    bluetick_reaction = "<a:bluetick:1329495657383329883>"
+    cross_reaction = "<a:error:1414890229872988311>"
+    tick_reaction = "<a:tick:1414889202814025790>"
+    bluetick_reaction = "<a:bluetick:1414890207349833738>"
     hundred_reaction = "💯"
     
     def __init__(self, bot:commands.Bot):
@@ -45,7 +45,7 @@ class counting_game(commands.Cog):
         if message.author.id == self.bot.last_user_id:
             try:
                 repeated_user_response = await openai_response(
-                    user_prompt="Chastise the user for counting repeatedly."
+                    user_prompt="The user has counted consequtively, they're not supposed to."
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
@@ -58,7 +58,7 @@ class counting_game(commands.Cog):
         if counted_number != self.bot.current_count + 1:
             try:
                 not_consecutive_response = await openai_response(
-                    user_prompt="Admonish the user for counting the wrong number."
+                    user_prompt="The user has sent the wrong number."
                     )
                 await message.reply(not_consecutive_response)
             except Exception as e:
@@ -142,9 +142,9 @@ class counting_game(commands.Cog):
         if counted_number % 100 == 0:
             await message.add_reaction(self.hundred_reaction)
         elif counted_number == self.bot.counting_record:
-            await message.add_reaction(self.bluetick_reaction)
-        else:
             await message.add_reaction(self.tick_reaction)
+        else:
+            await message.add_reaction(self.bluetick_reaction)
 
         for i in special_number_checker(counted_number):
             await message.channel.send(i)
@@ -159,7 +159,7 @@ class counting_game(commands.Cog):
         if before.id == self.bot.latest_message:
             try:
                 edited_response = await openai_response(
-                    user_prompt="Inform the channel that the last person to count has edited their message."
+                    user_prompt="The last person to count has attempted to deceive the channel by editing their message."
                 )
                 await before.channel.send(
                     (f"{edited_response}\n The number was {self.bot.current_count}.\n"
@@ -183,7 +183,7 @@ class counting_game(commands.Cog):
         if message.id == self.bot.latest_message:
             try:
                 deleted_response = await openai_response(
-                    user_prompt="Inform the channel that the last person to count has deleted their message."
+                    user_prompt="The last person to count has attempted to deceive the channel by deleting their message."
                     )
                 await message.channel.send(
                     f"{deleted_response}\n The number was {self.bot.current_count}.\n"
