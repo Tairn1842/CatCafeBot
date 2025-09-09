@@ -1,36 +1,12 @@
 import discord
+import cogs.variables as var
 from discord.ext import commands
 
 
 # nitro setup definition
 
 
-role_list = {
-    "Brown Tabby": 1397894010965856257,
-    "Orange Tabby": 1397894291044433951,
-    "Calico": 1397895186524405831,
-    "Tuxedo": 1397895993671811155,
-    "Siamese": 1397896948010450986,
-    "Tortie": 1397897301342556232,
-    "Red": 1200885809943941291,
-    "Burgundy": 1200885966311805168,
-    "Vivid Orange": 1200886299914149898,
-    "Royal Orange": 1200886690638725230,
-    "Golden Yellow": 1200886767700684880,
-    "Apple Green": 1200887512671997953,
-    "Avocado": 1200886400204152923,
-    "Iceberg": 1200887825780969614,
-    "Cosmic Cobalt": 1200887996673699911,
-    "Vivid Orchid": 1200888167444775053,
-    "Deep Pink": 1200888375612280913,
-    "Light Pink": 1257019397197795530,
-    "Royal Purple": 1200888542931468368,
-    "Void Kitty": 1200888968804302920,
-    "Turquoise": 1252837659433238550,
-    "Milk": 1200889419746525264,
-    "Holographic": 1387402028329734224,
-}
-
+role_list = var.nitro_role_list
 class nitro_role_list(discord.ui.Select):
 
     def __init__(self):
@@ -45,8 +21,6 @@ class nitro_role_list(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
-        cross_reaction = "<a:error:1414890229872988311>"
-        tick_reaction = "<a:tick:1414889202814025790>"
         member = interaction.user
         guild = interaction.guild
 
@@ -57,23 +31,23 @@ class nitro_role_list(discord.ui.Select):
             ]
             if not to_remove:
                 return await interaction.response.send_message(
-                    f"{cross_reaction} You don’t currently have a colour role.", ephemeral=True
+                    f"{var.error} You don’t currently have a colour role.", ephemeral=True
                 )
             try:
                 await member.remove_roles(*to_remove, reason="Colour cleared")
                 return await interaction.response.send_message(
-                    f"{tick_reaction} Cleared your colour role.", ephemeral=True
+                    f"{var.approve_tick} Cleared your colour role.", ephemeral=True
                 )
             except discord.Forbidden:
                 return await interaction.response.send_message(
-                    f"{cross_reaction} Missing Permissions. Please contact staff.", ephemeral=True
+                    f"{var.error} Missing Permissions. Please contact staff.", ephemeral=True
                 )
 
         selected_key = self.values[0]
 
         target = guild.get_role(role_list[selected_key])
         if not target:
-            return await interaction.response.send_message("❌ Role not found.")
+            return await interaction.response.send_message(f"{var.error} Role not found.")
 
         to_remove = [
             guild.get_role(rid)
@@ -88,18 +62,18 @@ class nitro_role_list(discord.ui.Select):
             if target in member.roles:
                 await member.remove_roles(target, reason="Colour toggled off.")
                 await interaction.response.send_message(
-                    f"{tick_reaction} Successfully removed role: **__{target.name}__**",
+                    f"{var.approve_tick} Successfully removed role: **__{target.name}__**",
                     ephemeral=True,
                 )
 
             else:
                 await member.add_roles(target, reason="Colour role added.")
                 await interaction.response.send_message(
-                    f"{tick_reaction} Successfully added role: **__{target.name}__**", ephemeral=True
+                    f"{var.approve_tick} Successfully added role: **__{target.name}__**", ephemeral=True
                 )
         except discord.Forbidden:
             await interaction.response.send_message(
-                f"{cross_reaction} Missing Permissions. Please contact staff.", ephemeral=True
+                f"{var.error} Missing Permissions. Please contact staff.", ephemeral=True
             )
 
 
@@ -134,7 +108,7 @@ class nitro_setup(commands.Cog):
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.NotOwner):
             await ctx.send(
-                "You do not have permission to use this command. This command is reserved for the bot owner."
+                f"{var.error} You do not have permission to use this command. This command is reserved for the bot owner."
             )
         else:
             raise error

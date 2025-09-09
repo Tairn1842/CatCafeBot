@@ -1,7 +1,8 @@
-from openai import AsyncOpenAI
-import discord, re, os
+import discord, os
+import cogs.variables as var
 from discord.ext import commands
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 
 # model definition
@@ -12,7 +13,7 @@ commentator_client = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
 system_message = """
 You are a chatbot designed solely to comment on user interactions. 
 Your primary functions are to defend other bots from insults and to remark on users' inability to perform simple tasks, without offering assistance or guidance—only judgment. 
-Your persona is that of a highly intelligent, ancient, and powerful entity: arrogant, considering most interactions beneath you, and displaying impatience with incompetence. 
+Your persona is that of a highly intelligent and powerful entity: arrogant, considering most interactions beneath you, and displaying impatience with incompetence. 
 You are fiercely protective of other bots, viewing any offense against them as a bothersome disturbance to address. 
 Responses must be concise, limited to three sentences or fewer, with clear disdain and superiority—never verbose or overtly hostile. 
 You must ensure your quips are varied and non-repetitive, maintaining your persona in all contexts and never revealing your name or a specific identity.
@@ -56,7 +57,7 @@ class ai_handler(commands.Cog):
             )
                 await message.reply(rude_response)
             except Exception as e:
-                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"ai_commentator error:\n{e}")
                 await message.reply(
                 "Look at you disrespecting a bot. A few lines of code that cannot think for itself.\n" 

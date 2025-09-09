@@ -1,4 +1,5 @@
 import discord, time
+import cogs.variables as var
 from discord.ext import commands
 from discord import app_commands
 
@@ -16,7 +17,7 @@ class HelpPage(discord.ui.View):
     ):
         if interaction.user.id != self.user.id:
             return await interaction.response.send_message(
-                "<a:cross:1329494914945515593> This is not your command. Shoo!",
+                f"{var.error} This is not your command. Shoo!",
                 ephemeral=True,
             )
         
@@ -27,7 +28,7 @@ class HelpPage(discord.ui.View):
             )
         else:
             await interaction.response.send_message(
-                "<a:cross:1329494914945515593> You are already on the first page."
+                f"{var.error} You are already on the first page."
                 ,ephemeral=True)
 
 
@@ -37,7 +38,7 @@ class HelpPage(discord.ui.View):
     ):
         if interaction.user.id != self.user.id:
             return await interaction.response.send_message(
-                "<a:cross:1329494914945515593> This is not your command. Shoo!",
+                f"{var.error} This is not your command. Shoo!",
                 ephemeral=True,
             )
 
@@ -48,8 +49,9 @@ class HelpPage(discord.ui.View):
             )
         else:
             await interaction.response.send_message(
-                "<a:cross:1329494914945515593> You are already on the last page."
+                f"{var.error} You are already on the last page."
                 ,ephemeral=True)
+
 
 class general_commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -140,7 +142,7 @@ class general_commands(commands.Cog):
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.NotOwner):
             await ctx.send(
-                "You do not have permission to use this command. This command is reserved for the bot owner."
+                f"{var.error} You do not have permission to use this command. This command is reserved for the bot owner."
             )
         else:
             raise error

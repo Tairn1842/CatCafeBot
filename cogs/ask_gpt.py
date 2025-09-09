@@ -1,4 +1,5 @@
-import discord, os, textwrap
+import discord, os
+import cogs.variables as var
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
@@ -80,7 +81,7 @@ class ask_gpt(commands.Cog):
             ask_gpt_embed.set_footer(text=f"This interaction cost ${response_cost}")
             await interaction.followup.send(embed=ask_gpt_embed)
         except Exception as e:
-            error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             await error_reporting.send(content=f"ask_gpt error:\n{e}")
             await interaction.followup.send(
                 "I do not have the time or patience to deal with this at the moment.\n"

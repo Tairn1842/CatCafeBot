@@ -1,4 +1,5 @@
-import discord,asyncio
+import discord
+import cogs.variables as var
 from discord.ext import commands
 from discord import app_commands
 from .ai_commentator import openai_response
@@ -6,22 +7,16 @@ from .ai_commentator import openai_response
 
 class counting_game(commands.Cog):
     
-    cross_reaction = "<a:error:1414890229872988311>"
-    tick_reaction = "<a:tick:1414889202814025790>"
-    bluetick_reaction = "<a:bluetick:1414890207349833738>"
-    hundred_reaction = "💯"
-    
     def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.bot.load_count()
     
     async def status_update(self, bot: commands.Bot):
-            channel = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            channel = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             bot_embed_colour = discord.Colour.blurple()
             status_embed = discord.Embed(
                 title="All bot stats:",
-                description=f"Channel: <#{self.bot.counting_channel}>\n"
-                f"Current Count: {self.bot.current_count}\n"
+                description=f"Current Count: {self.bot.current_count}\n"
                 f"Next: {self.bot.next_number}\n"
                 f"Last user: <@{self.bot.last_user_id}>\n"
                 f"Reset Point: {(self.bot.current_count // 100) * 100}\n"
@@ -35,7 +30,7 @@ class counting_game(commands.Cog):
         
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.bot or self.bot.counting_channel is None or message.channel.id != self.bot.counting_channel:
+        if message.author.bot or message.channel.id != var.counting_channel:
             return
         if not message.content.isdigit():
             return
@@ -49,7 +44,7 @@ class counting_game(commands.Cog):
                 )
                 await message.reply(repeated_user_response)
             except Exception as e:
-                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"consecutive count response error:\n{e}")
                 await message.reply("What are you incapable of, following the rules, or reading?")
             await self.reset_count_handler(message)
@@ -62,7 +57,7 @@ class counting_game(commands.Cog):
                     )
                 await message.reply(not_consecutive_response)
             except Exception as e:
-                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"wrong number response error:\n{e}")
                 await message.reply(
                     "It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."
@@ -80,11 +75,11 @@ class counting_game(commands.Cog):
         try:
             self.bot.save_count()
         except Exception as e:
-            error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             await error_reporting.send(content=f"save_count error:\n{e}")
             self.status_update()
             pass
-        await message.add_reaction(self.cross_reaction)
+        await message.add_reaction(var.counting_cross)
         await message.channel.send(f"The next number is {self.bot.next_number}")
 
     async def correct_count_handler(self, message, counted_number):
@@ -96,7 +91,7 @@ class counting_game(commands.Cog):
         try:
             self.bot.save_count()
         except Exception as e:
-            error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+            error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             await error_reporting.send(content=f"save_count error:\n{e}")
             self.status_update()
             pass
@@ -140,11 +135,11 @@ class counting_game(commands.Cog):
             return checker_response
 
         if counted_number % 100 == 0:
-            await message.add_reaction(self.hundred_reaction)
+            await message.add_reaction(var.hundred_emoji)
         elif counted_number == self.bot.counting_record:
-            await message.add_reaction(self.tick_reaction)
+            await message.add_reaction(var.approve_tick)
         else:
-            await message.add_reaction(self.bluetick_reaction)
+            await message.add_reaction(var.non_record_tick)
 
         for i in special_number_checker(counted_number):
             await message.channel.send(i)
@@ -152,9 +147,7 @@ class counting_game(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if self.bot.counting_channel is None:
-            return
-        if before.channel.id != self.bot.counting_channel:
+        if before.channel.id != var.counting_channel:
             return
         if before.id == self.bot.latest_message:
             try:
@@ -162,11 +155,11 @@ class counting_game(commands.Cog):
                     user_prompt="The last person to count has attempted to deceive the channel by editing their message."
                 )
                 await before.channel.send(
-                    (f"{edited_response}\n The number was {self.bot.current_count}.\n"
+                    (f"{edited_response}\nThe number was {self.bot.current_count}.\n"
                     f"The next number is {self.bot.next_number}.")
                     )
             except Exception as e:
-                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"edit response error:\n{e}")
                 await before.channel.send(
                     f"{before.author.mention} has edited their message, the sneaky devil!\n"
@@ -176,9 +169,7 @@ class counting_game(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message=discord.Message):
-        if self.bot.counting_channel is None:
-            return
-        if message.channel.id != self.bot.counting_channel:
+        if message.channel.id != var.counting_channel:
             return
         if message.id == self.bot.latest_message:
             try:
@@ -186,11 +177,11 @@ class counting_game(commands.Cog):
                     user_prompt="The last person to count has attempted to deceive the channel by deleting their message."
                     )
                 await message.channel.send(
-                    f"{deleted_response}\n The number was {self.bot.current_count}.\n"
+                    f"{deleted_response}\nThe number was {self.bot.current_count}.\n"
                     f"The next number is {self.bot.next_number}."
                     )
             except Exception as e:
-                error_reporting = self.bot.get_channel(1309124072738787378) or await self.bot.fetch_channel(1309124072738787378)
+                error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"delete response error:\n{e}")
                 await message.channel.send(
                     f"{message.author.mention} has deleted their message, the sneaky devil!\n"
@@ -205,15 +196,17 @@ class counting_game(commands.Cog):
     async def status(self, interaction: discord.Interaction):
         await interaction.response.defer()
         bot_embed_colour = interaction.user.colour
+        bot_guild = self.bot.get_guild(var.guild_id) or await self.bot.fetch_guild(var.guild_id)
+        last_user_object = bot_guild.get_member(self.bot.last_user_id) or await bot_guild.fetch_member(self.bot.last_user_id)
+        record_holder_object = bot_guild.get_member(self.bot.record_holder) or await bot_guild.fetch_member(self.bot.record_holder)
         statusembed = discord.Embed(
             title="All bot stats:",
-            description=f"Channel: <#{self.bot.counting_channel}>\n"
-            f"Current Count: {self.bot.current_count}\n"
+            description=f"Current Count: {self.bot.current_count}\n"
             f"Next: {self.bot.next_number}\n"
-            f"Last user: <@{self.bot.last_user_id}>\n"
+            f"Last user: {last_user_object.mention}\n"
             f"Reset Point: {(self.bot.current_count // 100) * 100}\n"
             f"Record: {self.bot.counting_record}\n"
-            f"Record Holder: <@{self.bot.record_holder}>\n"
+            f"Record Holder: {record_holder_object.mention}\n"
             f"Current Streak: {self.bot.current_streak}\n"
             f"Record Streak: {self.bot.record_streak}",
             colour=bot_embed_colour,
@@ -225,10 +218,12 @@ class counting_game(commands.Cog):
     async def record(self, interaction: discord.Interaction):
         await interaction.response.defer()
         bot_embed_colour = interaction.user.colour
+        bot_guild = self.bot.get_guild(var.guild_id) or await self.bot.fetch_guild(var.guild_id)
+        record_holder_object = bot_guild.get_member(self.bot.record_holder) or await bot_guild.fetch_member(self.bot.record_holder)
         recordmebed = discord.Embed(
             title="Counting Record:",
             description=f"This server's counting record is __**{self.bot.counting_record}**__.\n"
-            f"It was achieved by <@{self.bot.record_holder}>.",
+            f"It was achieved by {record_holder_object.mention}.",
             colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=recordmebed)
@@ -241,10 +236,12 @@ class counting_game(commands.Cog):
     async def nextnumber(self, interaction: discord.Interaction):
         await interaction.response.defer()
         bot_embed_colour = interaction.user.colour
+        bot_guild = self.bot.get_guild(var.guild_id) or await self.bot.fetch_guild(var.guild_id)
+        last_user_object = bot_guild.get_member(self.bot.last_user_id) or await bot_guild.fetch_member(self.bot.last_user_id)
         nextembed = discord.Embed(
             title="Next Number:",
             description=f"The next number is __**{self.bot.next_number}**__.\n"
-            f"The last person to count was <@{self.bot.last_user_id}>.",
+            f"The last person to count was {last_user_object.mention}.",
             colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=nextembed)
@@ -263,31 +260,8 @@ class counting_game(commands.Cog):
             colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=streakembed)
-    
-    
-    @commands.command()
-    @commands.is_owner()
-    async def setchannel(self, ctx: commands.Context, channel: discord.TextChannel = None):
-        if self.bot.counting_channel is not None:
-            return await ctx.send("Channel already set.")
 
-        target_channel = channel or ctx.channel
-        self.bot.counting_channel = target_channel.id
-        self.bot.save_count()
-        await ctx.send(
-            f"Counting channel set to {target_channel.mention}. Let the counting begin!"
-        )
-    
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        if isinstance(error, commands.NotOwner):
-            await ctx.send(
-                "You do not have permission to use this command. This command is reserved for the bot owner."
-            )
-        else:
-            raise error
 
-        
 async def setup(bot: commands.Bot):
     cog = (counting_game(bot))
     await bot.add_cog(cog)
