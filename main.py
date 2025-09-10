@@ -1,4 +1,5 @@
 import discord, json, os
+import datetime as dat
 import cogs.variables as var
 from discord.ext import commands
 from discord import app_commands
@@ -83,7 +84,8 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
     if isinstance(error, app_commands.MissingAnyRole):
         message = f"{var.error} You can't execute this command."
     elif isinstance(error, app_commands.CommandOnCooldown):
-        message = f"{var.error} This command is on cooldown! Try again after {error.retry_after} seconds."
+        ts_now = dat.datetime.now(dat.timezone.utc).timestamp()
+        message = f"{var.error} This command is on cooldown! Try again <t:{int(ts_now + error.retry_after)}:R>."
     elif isinstance(error, app_commands.CheckFailure):
         message = f"{var.error} You do not have permission to use this command."
     elif isinstance(error, app_commands.NoPrivateMessage):

@@ -46,7 +46,9 @@ class verification(commands.Cog):
             title="Get verified!",
             description="Welcome to Cat Cafe! To gain complete access to the server, press the button below.\n",
             colour=discord.Colour.blurple())
-        verification_embed.set_footer(text="By proceeding, you verify that you have read and understood the rules as stated above and that you agree to abide by them.")
+        verification_embed.set_footer(text=
+            "By proceeding, you verify that you have read and understood the rules as stated above and that you agree to abide by them."
+        )
         await ctx.send(embed=verification_embed,
                        view=user_verification_button())
     
