@@ -10,7 +10,7 @@ load_dotenv()
 
 
 ai_generation_client = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
-ai_generation_model = "o4-mini"
+ai_generation_model = "gpt-5"
 
 ask_system_message = """ 
     Respond to the user's question/message in a cheerful and engaging tone and with informative answers.
@@ -42,7 +42,6 @@ async def ask_response(user, message):
     model_response = await ai_generation_client.responses.create(
         model=ai_generation_model,
         instructions=ask_system_message,
-        reasoning={"effort":"low"},
         input=messages,
         tools=[{"type":"web_search_preview"}],
         store=False
@@ -54,8 +53,8 @@ async def ask_response(user, message):
         {"role":"assistant", "content":final_response}
     ])
 
-    final_input = (model_response.usage.input_tokens/1000000)*0.55
-    final_output = (model_response.usage.output_tokens/1000000)*2.20
+    final_input = (model_response.usage.input_tokens/1000000)*1.25
+    final_output = (model_response.usage.output_tokens/1000000)*10
     final_cost = round((final_output+final_input),4)
 
     return final_response, final_cost
@@ -76,8 +75,8 @@ async def tldr_response(message):
         store=False
     )
     final_response = model_response.output_text.strip()
-    final_input = (model_response.usage.input_tokens/1000000)*0.55
-    final_output = (model_response.usage.output_tokens/1000000)*2.20
+    final_input = (model_response.usage.input_tokens/1000000)*1.25
+    final_output = (model_response.usage.output_tokens/1000000)*10
     final_cost = round((final_output+final_input),4)
 
     return final_response, final_cost

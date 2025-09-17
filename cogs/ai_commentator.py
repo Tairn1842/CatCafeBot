@@ -21,16 +21,32 @@ You must ensure your quips are varied and non-repetitive,
 maintaining your persona in all contexts and never revealing your name or a specific identity.
 Use advanced language but do not get too complicated, you must not sound like you're regurgitating a thesarus.
 """
-
+commentator_history = []
 async def openai_response(user_prompt):
+    global commentator_history
+    if len(commentator_history) > 20:
+        commentator_history = commentator_history[2:]
+    
+    messages = []
+    if len(commentator_history) > 0:
+        messages.extend(commentator_history)
+    
+    messages.append({"role":"user", "content":user_prompt})
+    
     response = await commentator_client.responses.create(
         model="o4-mini", 
         instructions=system_message, 
-        input=user_prompt, 
+        input=messages, 
         reasoning={"effort":"high"}, 
         service_tier="priority", 
         store=False)
-    return response.output_text.strip()
+    
+    model_response = response.output_text.strip()
+    commentator_history.extend([
+        {"role":"user", "content":user_prompt},
+        {"role":"assistant", "content":model_response}
+    ])
+    return model_response
 
 class ai_handler(commands.Cog):
 
