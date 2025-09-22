@@ -94,11 +94,11 @@ class ai_generation(commands.Cog):
         try:
             await interaction.response.defer()
             bot_response, response_cost = await ask_response(interaction.user.global_name, message)
-            ask_embed = discord.Embed(title=f"{interaction.user.display_name} asks:",
-                description=message, 
+            ask_embed = discord.Embed(title="Your response:",
+                description=bot_response, 
                 colour=interaction.user.colour)
-            ask_embed.add_field(name="Model Response:",
-                value=bot_response,
+            ask_embed.add_field(name=f"{interaction.user.name}'s question:",
+                value=message,
                 inline=False)
             ask_embed.set_footer(text=f"This interaction cost ${response_cost}")
             await interaction.followup.send(embed=ask_embed)
