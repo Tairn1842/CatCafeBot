@@ -44,6 +44,7 @@ async def ask_response(user, message):
         instructions=ask_system_message,
         input=messages,
         tools=[{"type":"web_search_preview"}],
+        service_tier="priority",
         store=False
     )
 
@@ -53,8 +54,8 @@ async def ask_response(user, message):
         {"role":"assistant", "content":final_response}
     ])
 
-    final_input = (model_response.usage.input_tokens/1000000)*1.25
-    final_output = (model_response.usage.output_tokens/1000000)*10
+    final_input = (model_response.usage.input_tokens/1000000)*2.5
+    final_output = (model_response.usage.output_tokens/1000000)*20
     final_cost = round((final_output+final_input),4)
 
     return final_response, final_cost
@@ -72,14 +73,16 @@ async def tldr_response(message):
         model=ai_generation_model,
         instructions=tldr_system_message,
         input=f"Summarise this message: {message}",
+        service_tier="priority",
         store=False
     )
     final_response = model_response.output_text.strip()
-    final_input = (model_response.usage.input_tokens/1000000)*1.25
-    final_output = (model_response.usage.output_tokens/1000000)*10
+    final_input = (model_response.usage.input_tokens/1000000)*2.5
+    final_output = (model_response.usage.output_tokens/1000000)*20
     final_cost = round((final_output+final_input),4)
 
     return final_response, final_cost
+
 
 class ai_generation(commands.Cog):
     
