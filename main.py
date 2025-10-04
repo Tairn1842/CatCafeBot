@@ -92,7 +92,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         message  = f"{var.error} You can't use this bot in DMs!"
     else:
         message = f"An unexpected error occured. Please alert the bot owner.\n{error}"
-        error_logging_channel = bot.get_channel(1309124072738787378) or await bot.fetch_channel(1309124072738787378)
+        error_logging_channel = bot.get_channel(var.testing_channel) or await bot.fetch_channel(var.testing_channel)
         await error_logging_channel.send(f"{var.error} Error executing {interaction.command.name}:\n{error}\nUser:{interaction.user.name}")
 
     if interaction.response.is_done():
