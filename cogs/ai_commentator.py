@@ -34,7 +34,7 @@ async def openai_response(user_prompt):
     messages.append({"role":"user", "content":user_prompt})
     
     response = await commentator_client.responses.create(
-        model="o4-mini", 
+        model="gpt-5.1", 
         instructions=system_message, 
         input=messages, 
         reasoning={"effort":"high"}, 

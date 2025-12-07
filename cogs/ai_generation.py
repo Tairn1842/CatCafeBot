@@ -10,7 +10,7 @@ load_dotenv()
 
 
 ai_generation_client = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
-ai_generation_model = "gpt-5"
+ai_generation_model = "gpt-5.1"
 
 ask_system_message = """ 
     Respond to the user's question/message in a cheerful and engaging tone and with informative answers.
@@ -43,8 +43,7 @@ async def ask_response(user, message):
         model=ai_generation_model,
         instructions=ask_system_message,
         input=messages,
-        tools=[{"type":"web_search_preview"}],
-        service_tier="priority",
+        tools=[{"type":"web_search"}],
         store=False
     )
 
@@ -73,7 +72,6 @@ async def tldr_response(message):
         model=ai_generation_model,
         instructions=tldr_system_message,
         input=f"Summarise this message: {message}",
-        service_tier="priority",
         store=False
     )
     final_response = model_response.output_text.strip()
@@ -108,7 +106,7 @@ class ai_generation(commands.Cog):
         except Exception as e:
             error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             await error_reporting.send(content=f"ask_gpt error:\n{e}")
-            await interaction.followup.send(
+            await interaction.followup.send(content=
                 "I do not have the time or patience to deal with this at the moment.\n"
                 "Try again later, or ask someone else."
             )
@@ -121,35 +119,35 @@ class ai_generation(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         parts = message_link.split('/')
         if len(parts) < 7 or not all(part.isdigit() for part in parts[-3:]):
-            await interaction.follwup.send(f"{var.error} Invalid message link format.")
+            await interaction.follwup.send(content=f"{var.error} Invalid message link format.")
             return
         guild_id = parts[-3]
         guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
         if not guild:
-            await interaction.followup.send(f"{var.error} Guild not found, or the message is not from this guild.")
+            await interaction.followup.send(content=f"{var.error} Guild not found, or the message is not from this guild.")
             return
         channel_id = parts[-2]
         channel = guild.get_channel(channel_id) or await guild.fetch_channel(channel_id)
         if not channel:
-            await interaction.followup.send(f"{var.error} Channel not found.")
+            await interaction.followup.send(content=f"{var.error} Channel not found.")
             return
         message_id = parts[-1]
         try:
             message = await channel.fetch_message(message_id)
             if message.author.bot:
-                await interaction.followup.send(f"{var.error} I cannot summarise bot messages.")
+                await interaction.followup.send(content=f"{var.error} I cannot summarise bot messages.")
                 return
             bot_response,  tldr_cost = await tldr_response(message=message.content)
-            await interaction.followup.send(f"{bot_response}\n-# This summary cost ${tldr_cost}")
+            await interaction.followup.send(content=f"{bot_response}\n-# This summary cost ${tldr_cost}")
             return
         except discord.NotFound:
             if interaction.response.is_done():
-                await interaction.response.send_message(f"{var.error} Message not found.")
+                await interaction.response.send_message(content=f"{var.error} Message not found.")
             else:
-                await interaction.followup.send(f"{var.error} Message not found.")
+                await interaction.followup.send(content=f"{var.error} Message not found.")
         except Exception as e:
             error_channel = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
-            await error_channel.send(f"TLDR Error: \n{str(e)}")
+            await error_channel.send(content=f"TLDR Error: \n{str(e)}")
 
 async def setup(bot: commands.Bot):
     cog = (ai_generation(bot))

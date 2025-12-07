@@ -18,6 +18,7 @@ class CatCafeBot(commands.Bot):
         self.record_holder = None
         self.current_streak = 0
         self.record_streak = 0
+        self.count_saves = 0
 
         self.load_count()
         self.next_number = self.current_count + 1
@@ -34,6 +35,7 @@ class CatCafeBot(commands.Bot):
                     self.record_holder = data.get("record_holder", None)
                     self.current_streak = data.get("current_streak", 0)
                     self.record_streak = data.get("record_streak", 0)
+                    self.count_saves = data.get("count_saves", 0)
                 except json.JSONDecodeError:
                     self.save_count()
 
@@ -46,6 +48,7 @@ class CatCafeBot(commands.Bot):
             "record_holder": self.record_holder,
             "current_streak": self.current_streak,
             "record_streak": self.record_streak,
+            "count_saves": self.count_saves,
         }
         with open("icb_memory.json", "w") as f:
             json.dump(data, f)
@@ -57,6 +60,8 @@ class CatCafeBot(commands.Bot):
             self.current_streak += 1
             if self.current_streak > self.record_streak:
                 self.record_streak = self.current_streak
+            if self.current_streak >= (10**(self.count_saves + 2)):
+                self.count_saves += 1
     
     async def setup_hook(self):
         for filename in os.listdir("./cogs"):

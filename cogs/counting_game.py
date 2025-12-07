@@ -23,7 +23,8 @@ class counting_game(commands.Cog):
                 f"Record: {self.bot.counting_record}\n"
                 f"Record Holder: <@{self.bot.record_holder}>\n"
                 f"Current Streak: {self.bot.current_streak}\n"
-                f"Record Streak: {self.bot.record_streak}",
+                f"Record Streak: {self.bot.record_streak}\n"
+                f"Saves Available: {self.bot.count_saves}",
                 colour=bot_embed_colour,
             )
             await channel.send(content= "Current status:", embed=status_embed)
@@ -42,12 +43,15 @@ class counting_game(commands.Cog):
                 repeated_user_response = await openai_response(
                     user_prompt="I've counted consequtively knowing that I shouldn't, which has broken the flow of the counting game."
                 )
-                await message.reply(repeated_user_response)
+                await message.reply(content=repeated_user_response)
             except Exception as e:
                 error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"consecutive count response error:\n{e}")
-                await message.reply("What are you incapable of, following the rules, or reading?")
-            await self.reset_count_handler(message)
+                await message.reply(content="What are you incapable of, following the rules, or reading?")
+            if self.bot.count_saves > 0:
+                await self.saved_count_handler(message)
+            else:
+                await self.reset_count_handler(message)
             return
 
         if counted_number != self.bot.current_count + 1:
@@ -55,18 +59,34 @@ class counting_game(commands.Cog):
                 not_consecutive_response = await openai_response(
                     user_prompt="I've misread the previous number and sent in the wrong one, breaking the flow of the counting game."
                     )
-                await message.reply(not_consecutive_response)
+                await message.reply(content=not_consecutive_response)
             except Exception as e:
                 error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"wrong number response error:\n{e}")
-                await message.reply(
+                await message.reply(content=
                     "It appears that you've either forgotten the meaning of 'consecutive' or what the next number is. Pity."
                     )
-            await self.reset_count_handler(message)
+            if self.bot.count_saves > 0:
+                await self.saved_count_handler(message)
+            else:
+                await self.reset_count_handler(message)
             return
 
         await self.correct_count_handler(message, counted_number)
 
+    async def saved_count_handler(self, message):
+        self.bot.current_streak = 0
+        self.bot.count_saves -= 1
+        try:
+            self.bot.save_count()
+        except Exception as e:
+            error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
+            await error_reporting.send(content=f"save_count error:\n{e}")
+            self.status_update()
+            pass
+        await message.add_reaction(var.error)
+        await message.channel.send(content=f"The count has been preserved by a save, try again. The next number is {self.bot.next_number}")
+        
     async def reset_count_handler(self, message):
         self.bot.current_count = (self.bot.current_count // 100) * 100
         self.bot.next_number = self.bot.current_count + 1
@@ -80,7 +100,7 @@ class counting_game(commands.Cog):
             self.status_update()
             pass
         await message.add_reaction(var.counting_cross)
-        await message.channel.send(f"The next number is {self.bot.next_number}")
+        await message.channel.send(content=f"The next number is {self.bot.next_number}")
 
     async def correct_count_handler(self, message, counted_number):
         self.bot.current_count = counted_number
@@ -93,7 +113,7 @@ class counting_game(commands.Cog):
         except Exception as e:
             error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
             await error_reporting.send(content=f"save_count error:\n{e}")
-            self.status_update()
+            await self.status_update()
             pass
 
         def special_number_checker(counted_number):
@@ -156,14 +176,14 @@ class counting_game(commands.Cog):
                 edited_response = await openai_response(
                     user_prompt="I have attempted to deceive the others playing the counting game by editing my message."
                 )
-                await before.channel.send(
+                await before.channel.send(content=
                     (f"{edited_response}\nThe number was {self.bot.current_count}.\n"
                     f"The next number is {self.bot.next_number}.")
                     )
             except Exception as e:
                 error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"edit response error:\n{e}")
-                await before.channel.send(
+                await before.channel.send(content=
                     f"{before.author.mention} has edited their message, the sneaky devil!\n"
                     f"The number was {self.bot.current_count}. The next number is {self.bot.next_number}."
                     )
@@ -178,14 +198,14 @@ class counting_game(commands.Cog):
                 deleted_response = await openai_response(
                     user_prompt="I have attempted to deceive the others playing the counting game by deleting my message."
                     )
-                await message.channel.send(
+                await message.channel.send(content=
                     f"{deleted_response}\nThe number was {self.bot.current_count}.\n"
                     f"The next number is {self.bot.next_number}."
                     )
             except Exception as e:
                 error_reporting = self.bot.get_channel(var.testing_channel) or await self.bot.fetch_channel(var.testing_channel)
                 await error_reporting.send(content=f"delete response error:\n{e}")
-                await message.channel.send(
+                await message.channel.send(content=
                     f"{message.author.mention} has deleted their message, the sneaky devil!\n"
                     f"Their number was {self.bot.current_count}. The next number is {self.bot.next_number}."
                     )
@@ -210,7 +230,8 @@ class counting_game(commands.Cog):
             f"Record: {self.bot.counting_record}\n"
             f"Record Holder: {record_holder_object.mention}\n"
             f"Current Streak: {self.bot.current_streak}\n"
-            f"Record Streak: {self.bot.record_streak}",
+            f"Record Streak: {self.bot.record_streak}\n"
+            f"Saves Available: {self.bot.count_saves}",
             colour=bot_embed_colour,
         )
         await interaction.followup.send(embed=statusembed)
